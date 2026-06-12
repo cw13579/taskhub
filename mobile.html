@@ -553,10 +553,15 @@
  
  /* --- Init --- */
  function init() { mShowLogin(); }
- init();
  </script>
- </body>
+ <script src="js/github-sync.js"></script>
+<script>
+GH.initPartner().then(function(){init();}).catch(function(){init();});
+</script>
+</body>
  </html>
+
+
 
 
 

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+﻿ <!DOCTYPE html>
  <html lang="zh-CN">
  <head>
  <meta charset="UTF-8">
@@ -164,7 +164,20 @@
  .cm-add-form input:focus{border-color:var(--primary)}
  
  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
- </style>
+ /* GitHub Sync */
+.gh-sync-panel{background:var(--card);border:1px solid var(--gray-200);border-radius:8px;padding:12px;margin-top:10px}
+.gh-sync-panel .gh-header{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:8px}
+.gh-sync-panel .gh-header svg{width:14px;height:14px;color:var(--gray-500)}
+.gh-sync-panel .gh-row{margin-bottom:8px}
+.gh-sync-panel .gh-row label{font-size:10px;color:var(--gray-400);display:block;margin-bottom:2px}
+.gh-sync-panel .gh-row input{width:100%;padding:4px 6px;border:1px solid var(--gray-200);border-radius:4px;font-size:10px;outline:none;background:var(--gray-50)}
+.gh-sync-panel .gh-row input:focus{border-color:var(--primary)}
+.gh-sync-panel .gh-actions{display:flex;gap:4px}
+.gh-sync-panel .gh-actions button{flex:1;padding:4px 4px;font-size:9px;white-space:nowrap}
+.gh-sync-panel .gh-status{font-size:10px;margin-top:6px;padding:4px 6px;border-radius:4px;display:none}
+.gh-sync-panel .gh-status.ok{background:var(--success-light);color:var(--success);display:block}
+.gh-sync-panel .gh-status.err{background:var(--danger-light);color:var(--danger);display:block}
+</style>
  </head>
  <body>
  <div class="topbar">
@@ -194,7 +207,7 @@
        <div class="side-item" onclick="showView('tasks')" id="nav-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>任务管理</div>
        <div class="side-item" onclick="showView('companies')" id="nav-companies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2 2h-4a2 2 0 00-2 2v12"/></svg>公司管理</div>
        <div class="side-item" onclick="showView('coopers')" id="nav-coopers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>常用Cooper</div>
-       <div class="side-item" onclick="showView('approvals')" id="nav-approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>审批管理<span class="s-badge" id="badge-approvals" style="display:none">0</span></div>
+       <div class="side-item" onclick="showView('approvals')" id="nav-approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>审批管理<span class="s-badge" id="badge-approvals" style="display:none">0</span></div></div><div id="admin-sync-section"></div>
      </div>
    </div>
    <div class="content" id="admin-content"></div>
@@ -502,3 +515,4 @@
  </script>
  </body>
  </html>
+

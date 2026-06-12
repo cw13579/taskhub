@@ -1,4 +1,4 @@
- /* ===== TaskHub User App ===== */
+﻿ /* ===== TaskHub User App ===== */
  var S = { user: null, myCompany: null, view: 'list', filter: 'all', qf: 'all', selDate: null, calMon: new Date(), tagId: null };
  
  /* --- Data Layer --- */
@@ -363,3 +363,4 @@
  function start() { renderTasks(); renderCal(); schedR(); }
  function init() { showLogin(); }
  init();
+

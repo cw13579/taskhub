@@ -1,0 +1,559 @@
+ <!DOCTYPE html>
+ <html lang="zh-CN">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>TaskHub - 移动端</title>
+ <style>
+ *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+ :root{--primary:#4F6EF7;--primary-light:#7B9AFF;--success:#22C55E;--success-light:#BBF7D0;--warning:#F59E0B;--warning-light:#FDE68A;--danger:#EF4444;--danger-light:#FEE2E2;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--bg:#F0F2F5;--card:#FFFFFF;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,0.06)}
+ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--gray-800);min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+ 
+ /* Login */
+ .login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#4F6EF7,#7B9AFF);display:flex;align-items:center;justify-content:center;z-index:2000}
+ .login-card{background:white;border-radius:16px;padding:28px 20px;width:88%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+ .login-card h1{font-size:22px;font-weight:700;color:var(--primary);margin-bottom:2px}
+ .login-card .sub{font-size:12px;color:var(--gray-400);margin-bottom:16px}
+ .login-card h2{font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:10px}
+ .login-input{width:100%;padding:10px;border:2px solid var(--gray-200);border-radius:10px;font-size:15px;text-align:center;outline:none;margin-bottom:14px}
+ .login-input:focus{border-color:var(--primary)}
+ .company-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+ .company-option{padding:10px 8px;border:2px solid var(--gray-200);border-radius:10px;cursor:pointer;text-align:center}
+ .company-option.selected{border-color:var(--primary);background:rgba(79,110,247,0.08)}
+ .company-option .co-name{font-size:12px;font-weight:600;color:var(--gray-700)}
+ .login-btn{width:100%;padding:10px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+ .login-btn.primary{background:var(--primary);color:white}
+ .login-btn.back{background:transparent;color:var(--gray-400);font-size:12px;margin-top:4px}
+ 
+ /* Header */
+ .header{padding:10px 14px;background:var(--card);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
+ .header-left{display:flex;align-items:center;gap:6px}
+ .header-left h1{font-size:16px;font-weight:700;color:var(--primary)}
+ .header-left .ct{font-size:10px;color:var(--primary);background:rgba(79,110,247,0.08);padding:2px 8px;border-radius:10px}
+ .header-right{font-size:11px;color:var(--gray-400)}
+ 
+ /* Tab Bar */
+ .tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--gray-100);position:sticky;top:44px;z-index:99}
+ .tab{flex:1;text-align:center;padding:10px 4px;font-size:12px;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent}
+ .tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+ .tab .tc{font-size:10px;background:var(--danger);color:white;padding:1px 5px;border-radius:8px;margin-left:3px}
+ 
+ /* Quick Filters */
+ .qf-bar{display:flex;gap:4px;padding:8px 14px;background:var(--card);border-bottom:1px solid var(--gray-100);overflow-x:auto;scrollbar-width:none}
+ .qf-bar::-webkit-scrollbar{display:none}
+ .qf-btn{padding:4px 10px;border-radius:12px;font-size:11px;border:none;background:var(--gray-100);color:var(--gray-500);cursor:pointer;white-space:nowrap}
+ .qf-btn.active{background:var(--primary);color:white}
+ 
+ /* Search */
+ .sb{padding:8px 14px;background:var(--card);border-bottom:1px solid var(--gray-100);position:relative}
+ .sb input{width:100%;padding:8px 10px 8px 30px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;background:var(--gray-50);outline:none}
+ .sb input:focus{border-color:var(--primary);background:white}
+ .sb svg{position:absolute;left:22px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--gray-400)}
+ 
+ /* Content */
+ .content{padding:12px 14px;padding-bottom:80px}
+ 
+ /* Feedback Zone */
+ .fz{background:linear-gradient(135deg,#FEF3C7,#FDE68A);border-radius:10px;padding:12px;margin-bottom:12px;border:1px solid rgba(245,158,11,0.3);position:relative;overflow:hidden}
+ .fz::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#F59E0B,#EF4444,#F59E0B);background-size:200% 100%;animation:shimmer 2s infinite}
+ @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+ .fzh{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+ .fzh h3{font-size:13px;font-weight:600;color:#92400E}
+ .fzh svg{width:16px;height:16px;color:#D97706}
+ .fzh .fbc{font-size:11px;color:#DC2626;background:rgba(239,68,68,0.12);padding:2px 6px;border-radius:6px;margin-left:auto;font-weight:600}
+ 
+ /* Task Card */
+ .tc{background:var(--card);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--gray-200);display:flex;gap:10px;align-items:flex-start}
+ .tc.done{opacity:0.5}
+ .tc.done .tt{text-decoration:line-through;color:var(--gray-400)}
+ .tc.high{border-left:3px solid var(--danger)}
+ .tc.medium{border-left:3px solid var(--warning)}
+ .tc.low{border-left:3px solid var(--gray-300)}
+ .tck{width:20px;height:20px;border-radius:5px;border:2px solid var(--gray-300);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+ .tck.ch{background:var(--success);border-color:var(--success)}
+ .tck.ch svg{color:white}
+ .tck svg{width:12px;height:12px;color:transparent}
+ .tb{flex:1;min-width:0}
+ .tt{font-size:14px;font-weight:500;color:var(--gray-800)}
+ .td{font-size:12px;color:var(--gray-500);margin-top:4px}
+ .tl{font-size:12px;color:var(--primary);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 8px;background:rgba(79,110,247,0.08);border-radius:6px}
+ .tl svg{width:12px;height:12px}
+ .tm{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+ .tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+ .tag-h{background:var(--danger-light);color:var(--danger)}
+ .tag-m{background:var(--warning-light);color:var(--warning)}
+ .tag-l{background:var(--gray-100);color:var(--gray-500)}
+ .tag-d{background:var(--success-light);color:var(--success)}
+ .tag-p{background:var(--gray-100);color:var(--gray-500)}
+ .tag-f{background:var(--warning-light);color:#D97706}
+ .tag-nt{background:rgba(139,92,246,0.1);color:#7C3AED}
+ .fd{font-size:10px;color:var(--danger);font-weight:600;background:var(--danger-light);padding:1px 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px}
+ .fd svg{width:10px;height:10px}
+ .fd.ur{animation:pulse 1s infinite}
+ @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+ .taf{display:flex;gap:6px;margin-top:8px}
+ .taf button{flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:500;border:none;cursor:pointer}
+ .taf .bd{background:var(--success);color:white}
+ .taf .bt{background:rgba(139,92,246,0.1);color:#7C3AED}
+ 
+ /* Date Group */
+ .dg{margin-bottom:16px}
+ .dh{display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--gray-100)}
+ .dh .dl{font-size:14px;font-weight:600;color:var(--gray-700)}
+ .dh .dc{font-size:11px;color:var(--gray-400);background:var(--gray-100);padding:1px 6px;border-radius:6px}
+ 
+ /* Modal - Bottom Sheet */
+ .mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:end;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
+ .mo.sh{opacity:1;pointer-events:auto}
+ .ms{background:white;border-radius:14px 14px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s ease}
+ .mo.sh .ms{transform:translateY(0)}
+ .ms-handle{width:36px;height:4px;background:var(--gray-300);border-radius:2px;margin:0 auto 16px}
+ .mt{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+ .mt h3{font-size:15px;font-weight:600}
+ .mc{width:28px;height:28px;border-radius:8px;border:none;background:var(--gray-100);cursor:pointer;display:flex;align-items:center;justify-content:center}
+ .mc svg{width:14px;height:14px;color:var(--gray-500)}
+ .fg{margin-bottom:12px}
+ .fg label{font-size:12px;font-weight:500;color:var(--gray-700);display:block;margin-bottom:4px}
+ .fg input,.fg select,.fg textarea{width:100%;padding:8px 10px;border:1px solid var(--gray-200);border-radius:8px;font-size:13px;outline:none;background:var(--gray-50)}
+ .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);background:white}
+ .fg textarea{min-height:60px;resize:vertical}
+ .fa{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--gray-100)}
+ 
+ /* Cooper */
+ .cp{background:var(--card);border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--gray-200)}
+ .cph{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+ .cph h3{font-size:13px;font-weight:600;color:var(--gray-700)}
+ .cph svg{width:16px;height:16px;color:var(--primary)}
+ .cph .cpa{margin-left:auto;font-size:11px;color:var(--primary);cursor:pointer;background:rgba(79,110,247,0.08);padding:3px 8px;border-radius:5px;border:none}
+ .ci{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:6px;font-size:13px;text-decoration:none;color:var(--gray-600);margin-bottom:4px}
+ .ci svg{width:14px;height:14px;color:var(--primary);flex-shrink:0}
+ .ci .cin{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .ci .cia{font-size:9px;color:var(--primary);background:rgba(79,110,247,0.08);padding:1px 4px;border-radius:3px}
+ .ci .cid{width:20px;height:20px;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--gray-400);border-radius:4px}
+ 
+ /* Calendar */
+ .cal-wrap{padding:12px 14px;background:var(--card);border-bottom:1px solid var(--gray-100)}
+ .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+ .cal-nav h3{font-size:13px;font-weight:600;color:var(--gray-700)}
+ .cal-nav button{padding:4px 10px;border-radius:5px;border:1px solid var(--gray-200);background:var(--gray-50);cursor:pointer;font-size:12px;color:var(--gray-500)}
+ .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+ .cal-grid .cw{font-size:10px;color:var(--gray-400);padding:3px}
+ .cal-day{padding:6px 2px;border-radius:6px;font-size:12px;color:var(--gray-600);cursor:pointer;position:relative}
+ .cal-day:hover{background:var(--gray-100)}
+ .cal-day.today{background:var(--primary);color:white;font-weight:600;border-radius:6px}
+ .cal-day.sel{background:var(--primary-dark);color:white;border-radius:6px}
+ .cal-day.has-task::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--success)}
+ .cal-day.om{color:var(--gray-300)}
+ 
+ /* Reminder */
+ .rt{position:fixed;top:12px;left:12px;right:12px;z-index:600;background:white;border-radius:12px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);border-left:4px solid var(--danger);animation:sd .3s ease,shake .5s ease 0s 3}
+ @keyframes sd{from{transform:translateY(-60px);opacity:0}to{transform:translateY(0);opacity:1}}
+ @keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-3px)}20%,40%,60%,80%{transform:translateX(3px)}}
+ .rt .rth{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+ .rt .rth h4{font-size:13px;font-weight:600;color:var(--danger)}
+ .rt .rth svg{width:16px;height:16px;color:var(--danger)}
+ .rt .rtb{font-size:12px;color:var(--gray-600);line-height:1.5}
+ .rt .rtx{position:absolute;top:8px;right:10px;width:22px;height:22px;border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--gray-400)}
+ 
+ /* Empty */
+ .es{text-align:center;padding:40px 20px;color:var(--gray-400)}
+ .es svg{width:48px;height:48px;color:var(--gray-300);margin-bottom:12px}
+ .es h3{font-size:15px;color:var(--gray-500);margin-bottom:6px}
+ </style>
+ </head>
+ <body>
+ 
+ <!-- Login -->
+ <div class="login-overlay" id="login-page">
+   <div class="login-card">
+     <h1>TaskHub</h1>
+     <div class="sub">渠道任务协作平台</div>
+     <div id="login-step-1">
+       <h2>请输入您的名字</h2>
+       <input type="text" class="login-input" id="login-name" placeholder="输入您的名字">
+       <button class="login-btn primary" onclick="mGoStep2()">下一步</button>
+     </div>
+     <div id="login-step-2" style="display:none">
+       <h2>选择您的公司</h2>
+       <div class="company-grid" id="login-company-grid"></div>
+       <button class="login-btn primary" onclick="mConfirmCompany()">确认进入</button>
+       <button class="login-btn back" onclick="document.getElementById('login-step-1').style.display='block';document.getElementById('login-step-2').style.display='none'">← 返回</button>
+     </div>
+   </div>
+ </div>
+ 
+ <!-- Main App -->
+ <div id="main-app" style="display:none">
+   <div class="header">
+     <div class="header-left">
+       <h1>TaskHub</h1>
+       <span class="ct" id="header-company"></span>
+     </div>
+     <div class="header-right" id="header-user"></div>
+   </div>
+   <div class="tab-bar">
+     <div class="tab active" data-tab="tasks" onclick="switchTab('tasks')">任务<span class="tc" id="fb-tab-count" style="display:none">0</span></div>
+     <div class="tab" data-tab="coopers" onclick="switchTab('coopers')">常用Cooper</div>
+     <div class="tab" data-tab="calendar" onclick="switchTab('calendar')">日历</div>
+   </div>
+ 
+   <div id="tasks-view">
+     <div class="sb">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+       <input type="text" placeholder="搜索任务..." id="search-input" oninput="renderTasks()">
+     </div>
+     <div class="qf-bar">
+       <button class="qf-btn active" onclick="setQF('all')">全部</button>
+       <button class="qf-btn" onclick="setQF('today')">今天</button>
+       <button class="qf-btn" onclick="setQF('pending')">待处理</button>
+       <button class="qf-btn" onclick="setQF('done')">已完成</button>
+     </div>
+     <div class="content" id="task-content"></div>
+   </div>
+ 
+   <div id="coopers-view" style="display:none">
+     <div class="content" id="cooper-content"></div>
+   </div>
+ 
+   <div id="calendar-view" style="display:none">
+     <div class="content" id="calendar-content"></div>
+   </div>
+ </div>
+ 
+ <!-- Tag Modal -->
+ <div class="mo" id="tag-modal">
+   <div class="ms">
+     <div class="ms-handle"></div>
+     <div class="mt"><h3>打标 / 备注</h3><button class="mc" onclick="hideTagModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+     <div class="fg"><label>优先级</label><select id="tag-priority"><option value="">不修改</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></div>
+     <div class="fg"><label>备注</label><textarea id="tag-note" placeholder="添加备注..."></textarea></div>
+     <div class="fa"><button style="padding:8px 16px;border-radius:8px;border:1px solid var(--gray-300);background:transparent;cursor:pointer;font-size:13px;color:var(--gray-600)" onclick="hideTagModal()">取消</button><button style="padding:8px 16px;border-radius:8px;border:none;background:var(--primary);color:white;cursor:pointer;font-size:13px" onclick="saveTag()">保存</button></div>
+   </div>
+ </div>
+ 
+ <!-- Cooper Modal -->
+ <div class="mo" id="cooper-modal">
+   <div class="ms">
+     <div class="ms-handle"></div>
+     <div class="mt"><h3>添加常用Cooper</h3><button class="mc" onclick="hideCooperModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+     <div class="fg"><label>名称</label><input type="text" id="cooper-name" placeholder="如：司机外呼明细"></div>
+     <div class="fg"><label>链接</label><input type="text" id="cooper-link" placeholder="https://cooper.didichuxing.com/..."></div>
+     <div class="fa"><button style="padding:8px 16px;border-radius:8px;border:1px solid var(--gray-300);background:transparent;cursor:pointer;font-size:13px;color:var(--gray-600)" onclick="hideCooperModal()">取消</button><button style="padding:8px 16px;border-radius:8px;border:none;background:var(--primary);color:white;cursor:pointer;font-size:13px" onclick="saveCooper()">保存</button></div>
+   </div>
+ </div>
+ 
+ <div id="reminder-container"></div>
+ 
+ <script>
+ var S = { myCompany: null, qf: 'all', tab: 'tasks', tagId: null, calMonth: new Date() };
+ var _mUser = null;
+ 
+ /* --- Data --- */
+ function mG() { try { var d = localStorage.getItem('th3_global'); return d ? JSON.parse(d) : null; } catch (e) { return null; } }
+ function mU() {
+   if (!_mUser) return { coopers: [], taskNotes: {} };
+   try { var d = localStorage.getItem('th3_users'); var u = d ? JSON.parse(d) : {}; return u[_mUser] || { coopers: [], taskNotes: {} }; } catch (e) { return { coopers: [], taskNotes: {} }; }
+ }
+ function mUS(data) {
+   if (!_mUser) return;
+   try { var d = localStorage.getItem('th3_users'); var u = d ? JSON.parse(d) : {}; u[_mUser] = data; localStorage.setItem('th3_users', JSON.stringify(u)); } catch (e) { }
+ }
+ function td() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+ function today() { return td(); }
+ function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+ function parseDL(dl) { if (dl.indexOf('T') >= 0) return new Date(dl); var p = dl.split(':'); var d = new Date(); d.setHours(parseInt(p[0]), parseInt(p[1]), 0, 0); return d; }
+ function fmtDL(dl) { if (dl.indexOf('T') >= 0) { var d = new Date(dl); return (d.getMonth()+1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); } return dl; }
+ 
+ /* --- Login --- */
+ var _mlc = null;
+ function mShowLogin() {
+   var su = localStorage.getItem('th3_current_user');
+   if (su) {
+     _mUser = su;
+     var ud = mU();
+     if (ud && ud.company) {
+       S.myCompany = ud.company;
+       document.getElementById('login-page').style.display = 'none';
+       document.getElementById('main-app').style.display = 'block';
+       document.getElementById('header-company').textContent = ud.company;
+       document.getElementById('header-user').textContent = su;
+       mStart(); return;
+     }
+   }
+   document.getElementById('login-page').style.display = 'flex';
+   document.getElementById('main-app').style.display = 'none';
+   document.getElementById('login-step-1').style.display = 'block';
+   document.getElementById('login-step-2').style.display = 'none';
+   if (su) document.getElementById('login-name').value = su;
+ }
+ 
+ function mGoStep2() {
+   var n = document.getElementById('login-name').value.trim();
+   if (!n) { alert('请输入您的名字'); return; }
+   _mUser = n; localStorage.setItem('th3_current_user', n);
+   var ud = mU();
+   if (ud && ud.company) {
+     S.myCompany = ud.company;
+     document.getElementById('login-page').style.display = 'none';
+     document.getElementById('main-app').style.display = 'block';
+     document.getElementById('header-company').textContent = ud.company;
+     document.getElementById('header-user').textContent = n;
+     mStart(); return;
+   }
+   var gd = mG();
+   var comps = gd && gd.companies ? gd.companies : ['杭州创业兄弟', '杭州幸福千万家', '杭州租哥辆', '杭州讯途同创'];
+   document.getElementById('login-step-1').style.display = 'none';
+   document.getElementById('login-step-2').style.display = 'block';
+   var grid = document.getElementById('login-company-grid');
+   var h = '';
+   comps.forEach(function (c) {
+     h += '<div class="company-option" data-company="' + c + '" onclick="mSelC(this)"><div class="co-name">' + c + '</div></div>';
+   });
+   grid.innerHTML = h;
+ }
+ 
+ function mSelC(el) {
+   document.querySelectorAll('#login-company-grid .company-option').forEach(function (e) { e.classList.remove('selected'); });
+   el.classList.add('selected');
+   _mlc = el.dataset.company;
+ }
+ 
+ function mConfirmCompany() {
+   if (!_mlc) { alert('请选择公司'); return; }
+   S.myCompany = _mlc;
+   var ud = mU(); ud.company = _mlc; mUS(ud);
+   // Register in global
+   var gd = mG(); if (gd) { if (!gd.users) gd.users = {}; gd.users[_mUser] = _mlc; localStorage.setItem('th3_global', JSON.stringify(gd)); }
+   document.getElementById('login-page').style.display = 'none';
+   document.getElementById('main-app').style.display = 'block';
+   document.getElementById('header-company').textContent = _mlc;
+   document.getElementById('header-user').textContent = _mUser;
+   mStart();
+ }
+ 
+ function mStart() { renderTasks(); schedR(); }
+ 
+ /* --- Tabs --- */
+ function switchTab(t) {
+   S.tab = t;
+   document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === t); });
+   document.getElementById('tasks-view').style.display = t === 'tasks' ? 'block' : 'none';
+   document.getElementById('coopers-view').style.display = t === 'coopers' ? 'block' : 'none';
+   document.getElementById('calendar-view').style.display = t === 'calendar' ? 'block' : 'none';
+   if (t === 'tasks') renderTasks();
+   else if (t === 'coopers') renderCoopers();
+   else renderCal();
+ }
+ 
+ function setQF(qf) {
+   S.qf = qf;
+   var lm = { all: '全部', today: '今天', pending: '待处理', done: '已完成' };
+   document.querySelectorAll('.qf-btn').forEach(function (b) { b.classList.toggle('active', b.textContent === lm[qf]); });
+   renderTasks();
+ }
+ 
+ /* --- Get Tasks --- */
+ function getTasks() {
+   var gd = mG();
+   if (!gd || !gd.tasks) return [];
+   var t = gd.tasks.filter(function (x) { return x.company === S.myCompany; });
+   var q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+   if (q) t = t.filter(function (x) { return x.name.toLowerCase().indexOf(q) >= 0 || (x.partner || '').toLowerCase().indexOf(q) >= 0; });
+   if (S.qf === 'today') t = t.filter(function (x) { return x.date === today(); });
+   else if (S.qf === 'pending') t = t.filter(function (x) { return x.status === 'pending'; });
+   else if (S.qf === 'done') t = t.filter(function (x) { return x.status === 'done'; });
+   t.sort(function (a, b) {
+     var af = a.needFeedback && a.date === today() && a.status !== 'done' ? 0 : 1;
+     var bf = b.needFeedback && b.date === today() && b.status !== 'done' ? 0 : 1;
+     if (af !== bf) return af - bf;
+     if (a.date !== b.date) return b.date.localeCompare(a.date);
+     return { high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority];
+   });
+   return t;
+ }
+ 
+ /* --- Render Tasks --- */
+ function renderTasks() {
+   var t = getTasks();
+   var a = document.getElementById('task-content');
+   var h = '';
+   var gd = mG();
+   var fb = gd && gd.tasks ? gd.tasks.filter(function (x) { return x.company === S.myCompany && x.needFeedback && x.date === today() && x.status !== 'done'; }) : [];
+   var fc = document.getElementById('fb-tab-count');
+   fc.textContent = fb.length; fc.style.display = fb.length ? 'inline' : 'none';
+   // Feedback zone
+   if (fb.length) {
+     h += '<div class="fz"><div class="fzh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><h3>今日需反馈</h3><span class="fbc">' + fb.length + '项</span></div>';
+     fb.forEach(function (x) { h += ct(x); });
+     h += '</div>';
+   }
+   var reg = t.filter(function (x) { return !(x.needFeedback && x.date === today() && x.status !== 'done'); });
+   if (!reg.length && !fb.length) { a.innerHTML = '<div class="es"><h3>暂无任务</h3></div>'; return; }
+   var grp = {};
+   reg.forEach(function (x) { if (!grp[x.date]) grp[x.date] = []; grp[x.date].push(x); });
+   for (var d in grp) {
+     var items = grp[d];
+     h += '<div class="dg"><div class="dh"><div class="dl">' + (d === today() ? '今天 (' + d + ')' : d) + '</div><div class="dc">' + items.length + '项</div></div>';
+     items.forEach(function (x) { h += ct(x); });
+     h += '</div>';
+   }
+   a.innerHTML = h;
+ }
+ 
+ function ct(t) {
+   var SL = { pending: '待处理', done: '已完成' };
+   var PL = { high: '高', medium: '中', low: '低' };
+   var cc = t.status === 'done' ? 'done' : '';
+   var pc = t.priority;
+   var kc = t.status === 'done' ? 'ch' : '';
+   var fd = '';
+   if (t.needFeedback && t.feedbackDeadline) {
+     var deadline = parseDL(t.feedbackDeadline);
+     var now = new Date();
+     var diffMin = Math.floor((deadline.getTime() - now.getTime()) / 60000);
+     var urg = diffMin > 0 && diffMin <= 120 ? 'ur' : '';
+     var lb = diffMin <= 0 ? '已超时' : '剩余' + Math.floor(diffMin / 60) + '时' + (diffMin % 60) + '分';
+     fd = '<span class="fd ' + urg + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>截止 ' + fmtDL(t.feedbackDeadline) + ' (' + lb + ')</span>';
+   }
+   var fr = t.needFeedback && t.feedbackReq ? '<span class="tag tag-f">' + t.feedbackReq + '</span>' : '';
+   var ud = mU();
+   var nt = ud.taskNotes && ud.taskNotes[t.id] ? '<span class="tag tag-nt">📌 ' + ud.taskNotes[t.id] + '</span>' : '';
+   var tn = t.tableName || '打开';
+   return '<div class="tc ' + cc + ' ' + pc + '"><div class="tck ' + kc + '" onclick="tog(\'' + t.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt">' + t.name + '</div>' + (t.desc ? '<div class="td">' + t.desc + '</div>' : '') + (t.link ? '<a class="tl" href="' + t.link + '" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + tn + '</a>' : '') + '<div class="tm"><span class="tag tag-' + t.priority + '">' + PL[t.priority] + '</span><span class="tag tag-' + (t.status === 'done' ? 'd' : 'p') + '">' + SL[t.status] + '</span>' + fd + fr + nt + '</div><div class="taf"><button class="bd" onclick="tog(\'' + t.id + '\')">' + (t.status === 'done' ? '✅ 已完成' : '✔ 完成') + '</button><button class="bt" onclick="showTag(\'' + t.id + '\')">🏷 打标</button></div></div></div>';
+ }
+ 
+ function tog(id) {
+   var gd = mG(); if (!gd || !gd.tasks) return;
+   var t = gd.tasks.find(function (x) { return x.id === id; });
+   if (!t) return;
+   t.status = t.status === 'done' ? 'pending' : 'done';
+   localStorage.setItem('th3_global', JSON.stringify(gd));
+   renderTasks();
+ }
+ 
+ /* --- Tag/Note --- */
+ function showTag(id) {
+   S.tagId = id;
+   var gd = mG();
+   var t = gd && gd.tasks ? gd.tasks.find(function (x) { return x.id === id; }) : null;
+   if (!t) return;
+   var ud = mU();
+   document.getElementById('tag-priority').value = '';
+   document.getElementById('tag-note').value = ud.taskNotes && ud.taskNotes[id] ? ud.taskNotes[id] : '';
+   document.getElementById('tag-modal').classList.add('sh');
+ }
+ function hideTagModal() { document.getElementById('tag-modal').classList.remove('sh'); S.tagId = null; }
+ function saveTag() {
+   var gd = mG(); if (!gd || !gd.tasks) { hideTagModal(); return; }
+   var t = gd.tasks.find(function (x) { return x.id === S.tagId; });
+   if (!t) { hideTagModal(); return; }
+   var p = document.getElementById('tag-priority').value;
+   if (p) t.priority = p;
+   localStorage.setItem('th3_global', JSON.stringify(gd));
+   var ud = mU(); if (!ud.taskNotes) ud.taskNotes = {};
+   ud.taskNotes[S.tagId] = document.getElementById('tag-note').value.trim();
+   mUS(ud);
+   hideTagModal(); renderTasks();
+ }
+ 
+ /* --- Coopers --- */
+ function renderCoopers() {
+   var a = document.getElementById('cooper-content');
+   var gd = mG();
+   var adm = gd && gd.adminCoopers ? gd.adminCoopers.filter(function (c) { return c.company === '__all__' || c.company === S.myCompany; }) : [];
+   var ud = mU(); var uc = ud.coopers || [];
+   var cs = adm.concat(uc);
+   var h = '<div class="cp"><div class="cph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg><h3>常用Cooper</h3><button class="cpa" onclick="showC()">+ 添加</button></div>';
+   if (!cs.length) { h += '<div class="es" style="padding:16px"><h3>暂无链接</h3></div>'; }
+   else {
+     cs.forEach(function (c) {
+       var ia = c.byAdmin ? '<span class="cia">管理员</span>' : '';
+       var dl = !c.byAdmin ? '<button class="cid" onclick="delC(\'' + c.id + '\')">✕</button>' : '';
+       h += '<a class="ci" href="' + c.link + '" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="cin">' + c.name + '</span>' + ia + dl + '</a>';
+     });
+   }
+   h += '</div>'; a.innerHTML = h;
+ }
+ function showC() { document.getElementById('cooper-name').value = ''; document.getElementById('cooper-link').value = ''; document.getElementById('cooper-modal').classList.add('sh'); }
+ function hideCooperModal() { document.getElementById('cooper-modal').classList.remove('sh'); }
+ function saveCooper() {
+   var n = document.getElementById('cooper-name').value.trim();
+   var l = document.getElementById('cooper-link').value.trim();
+   if (!n || !l) { alert('请填写名称和链接'); return; }
+   var ud = mU(); if (!ud.coopers) ud.coopers = [];
+   ud.coopers.push({ id: uid(), name: n, link: l });
+   mUS(ud); hideCooperModal();
+   if (S.tab === 'coopers') renderCoopers();
+ }
+ function delC(id) {
+   var ud = mU(); if (!ud.coopers) return;
+   ud.coopers = ud.coopers.filter(function (x) { return x.id !== id; });
+   mUS(ud); if (S.tab === 'coopers') renderCoopers();
+ }
+ 
+ /* --- Calendar --- */
+ function renderCal() {
+   var a = document.getElementById('calendar-content');
+   var m = S.calMonth;
+   var h = '<div class="cal-wrap"><div class="cal-nav"><button onclick="chM(-1)">◀</button><h3>' + m.getFullYear() + '年' + (m.getMonth() + 1) + '月</h3><button onclick="chM(1)">▶</button></div>';
+   h += '<div class="cal-grid">';
+   ['日', '一', '二', '三', '四', '五', '六'].forEach(function (d) { h += '<div class="cw">' + d + '</div>'; });
+   var fd = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
+   var dim = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+   var pd = new Date(m.getFullYear(), m.getMonth(), 0).getDate();
+   var gd = mG();
+   var tds = new Set();
+   if (gd && gd.tasks) { gd.tasks.filter(function (t) { return t.company === S.myCompany; }).forEach(function (t) { tds.add(t.date); }); }
+   for (var i = fd - 1; i >= 0; i--) { h += '<div class="cal-day om">' + (pd - i) + '</div>'; }
+   for (var d = 1; d <= dim; d++) {
+     var ds = m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+     var cls = ['cal-day']; if (ds === today()) cls.push('today'); if (tds.has(ds)) cls.push('has-task');
+     h += '<div class="' + cls.join(' ') + '" onclick="calSel(\'' + ds + '\')">' + d + '</div>';
+   }
+   var r = 7 - ((fd + dim) % 7); if (r < 7) for (var d = 1; d <= r; d++) { h += '<div class="cal-day om">' + d + '</div>'; }
+   h += '</div></div>';
+   // Show tasks for selected date or today
+   var selTasks = [];
+   if (gd && gd.tasks) { selTasks = gd.tasks.filter(function (t) { return t.company === S.myCompany && t.date === today(); }); }
+   if (selTasks.length) {
+     h += '<div style="margin-top:12px"><div class="dh"><div class="dl">今天的任务</div><div class="dc">' + selTasks.length + '项</div></div>';
+     selTasks.forEach(function (x) { h += ct(x); });
+     h += '</div>';
+   }
+   a.innerHTML = h;
+ }
+ function chM(d) { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() + d, 1); renderCal(); }
+ function calSel(ds) { S.qf = 'all'; /* could filter by date, for now show all */ renderTasks(); switchTab('tasks'); }
+ 
+ /* --- Reminders --- */
+ var _rts = [];
+ function schedR() {
+   _rts.forEach(function (t) { clearTimeout(t); }); _rts = [];
+   var gd = mG();
+   if (!gd || !gd.tasks) return;
+   var mt = gd.tasks.filter(function (t) { return t.company === S.myCompany && t.needFeedback && t.date === today() && t.feedbackDeadline && t.status !== 'done'; });
+   var now = new Date();
+   mt.forEach(function (t) {
+     var dl = parseDL(t.feedbackDeadline);
+     var rm = new Date(dl.getTime() - 2 * 3600000);
+     var diff = rm.getTime() - now.getTime();
+     if (diff > 0 && diff < 12 * 3600000) { _rts.push(setTimeout(function () { showT(t); }, diff)); }
+     if (now >= rm && now < dl) { showT(t); }
+   });
+ }
+ function showT(t) {
+   var c = document.getElementById('reminder-container');
+   var id = 'toast-' + t.id;
+   if (document.getElementById(id)) return;
+   var h = '<div class="rt" id="' + id + '"><button class="rtx" onclick="this.parentElement.remove()">✕</button><div class="rth"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><h4>⏰ 反馈提醒</h4></div><div class="rtb"><strong>' + t.name + '</strong> 截止 ' + fmtDL(t.feedbackDeadline) + '<br>距离截止不足2小时！</div></div>';
+   c.insertAdjacentHTML('beforeend', h);
+   try { navigator.vibrate && navigator.vibrate([200, 100, 200, 100, 200]); } catch (e) { }
+   setTimeout(function () { var el = document.getElementById(id); if (el) el.remove(); }, 60000);
+ }
+ 
+ /* --- Init --- */
+ function init() { mShowLogin(); }
+ init();
+ </script>
+ </body>
+ </html>

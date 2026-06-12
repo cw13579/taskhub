@@ -1,0 +1,111 @@
+ <!DOCTYPE html>
+ <html lang="zh-CN">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script>if("ontouchstart" in window||navigator.maxTouchPoints>0||navigator.userAgent.indexOf("Mobi")>=0){if(!localStorage.getItem("th3_fd")&&window.innerWidth<768){window.location.href="mobile.html"}}</script>
+ <title>TaskHub - 渠道任务协作平台</title>
+ <link rel="stylesheet" href="css/style.css">
+ </head>
+ <body>
+ 
+ <!-- Login -->
+ <div class="login-overlay" id="login-page">
+   <div class="login-card">
+     <h1>TaskHub</h1>
+     <div class="sub">渠道任务协作平台</div>
+     <div id="login-step-1">
+       <h2>请输入您的名字</h2>
+       <input type="text" class="login-input" id="login-name" placeholder="输入您的名字">
+       <button class="login-btn primary" onclick="goStep2()">下一步</button>
+     </div>
+     <div id="login-step-2" style="display:none">
+       <h2>选择您的公司</h2>
+       <div class="company-grid" id="login-company-grid"></div>
+       <button class="login-btn primary" onclick="confirmLoginCompany()">确认进入</button>
+       <button class="login-btn back" onclick="backToStep1()">← 返回</button>
+     </div>
+   </div>
+ </div>
+ 
+ <!-- Main App -->
+ <div class="app" id="main-app" style="display:none">
+   <div class="sidebar" id="sidebar">
+     <div class="sidebar-header">
+       <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>TaskHub</h1>
+       <div class="user-info"><span class="ui-name" id="sidebar-user"></span><span class="ui-company" id="sidebar-company"></span><span class="ui-logout" onclick="logoutUser()">退出</span></div>
+     </div>
+     <div class="sidebar-nav">
+       <div class="nav-section">
+         <div class="nav-section-title">视图</div>
+         <div class="nav-item active" onclick="setView('list')" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>任务列表</div>
+         <div class="nav-item" onclick="setView('coopers')" data-view="coopers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>常用Cooper</div>
+       </div>
+       <div class="nav-section">
+         <div class="nav-section-title">状态</div>
+         <div class="nav-item active" onclick="setFilter('all')" data-filter="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>全部</div>
+         <div class="nav-item" onclick="setFilter('pending')" data-filter="pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>待处理<span class="badge" id="pending-badge">0</span></div>
+         <div class="nav-item" onclick="setFilter('done')" data-filter="done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>已完成</div>
+       </div>
+     </div>
+     <div class="sidebar-footer">
+       <div class="stat-grid">
+         <div class="stat-item"><div class="sv" id="stat-total">0</div><div class="sl">总任务</div></div>
+         <div class="stat-item success"><div class="sv" id="stat-done">0</div><div class="sl">已完成</div></div>
+         <div class="stat-item danger"><div class="sv" id="stat-fb">0</div><div class="sl">待反馈</div></div>
+       </div>
+     </div>
+   </div>
+ 
+   <div class="main">
+     <div class="main-header">
+       <div class="header-left">
+         <button class="mob-toggle" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+         <h2 id="view-title">任务列表</h2>
+         <span class="date-tag" id="header-company-tag"></span>
+         <div class="date-tag" id="today-tag"></div>
+       </div>
+       <div class="header-right">
+         <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索..." id="search-input" oninput="renderTasks()"></div>
+       </div>
+     </div>
+ 
+     <div class="main-content" id="main-content">
+       <div class="cal-wrap" id="calendar-section">
+         <div class="cal-nav">
+           <button class="cal-nav-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+           <h3 id="calendar-title"></h3>
+           <button class="cal-nav-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+         </div>
+         <div class="cal-grid" id="calendar-grid"></div>
+       </div>
+       <div class="task-area" id="task-area"></div>
+     </div>
+   </div>
+ </div>
+ 
+ <!-- Tag/Note Modal -->
+ <div class="modal-overlay" id="tag-modal">
+   <div class="modal">
+     <div class="modal-header"><h3>打标 / 备注</h3><button class="modal-close" onclick="hideTagModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+     <div class="form-group"><label>优先级标记</label><select id="tag-priority"><option value="">不修改</option><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></div>
+     <div class="form-group"><label>备注</label><textarea id="tag-note" placeholder="添加备注信息..."></textarea></div>
+     <div class="form-actions"><button class="btn btn-o" onclick="hideTagModal()">取消</button><button class="btn btn-p" onclick="saveTag()">保存</button></div>
+   </div>
+ </div>
+ 
+ <!-- Add Cooper Modal -->
+ <div class="modal-overlay" id="cooper-modal">
+   <div class="modal">
+     <div class="modal-header"><h3>添加常用Cooper</h3><button class="modal-close" onclick="hideCooperModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+     <div class="form-group"><label>名称</label><input type="text" id="cooper-name" placeholder="如：司机外呼明细"></div>
+     <div class="form-group"><label>链接</label><input type="text" id="cooper-link" placeholder="https://cooper.didichuxing.com/..."></div>
+     <div class="form-actions"><button class="btn btn-o" onclick="hideCooperModal()">取消</button><button class="btn btn-p" onclick="saveCooper()">保存</button></div>
+   </div>
+ </div>
+ 
+ <div id="reminder-container"></div>
+ <script src="js/app.js"></script>
+ <script>if(window.location.search.indexOf("desktop=1")>=0){localStorage.setItem("th3_fd","1")}if(window.location.search.indexOf("mobile=1")>=0){localStorage.removeItem("th3_fd");window.location.href="mobile.html"}</script>
+ </body>
+ </html>

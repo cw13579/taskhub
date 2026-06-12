@@ -177,7 +177,19 @@
 .gh-sync-panel .gh-status{font-size:10px;margin-top:6px;padding:4px 6px;border-radius:4px;display:none}
 .gh-sync-panel .gh-status.ok{background:var(--success-light);color:var(--success);display:block}
 .gh-sync-panel .gh-status.err{background:var(--danger-light);color:var(--danger);display:block}
-</style>
+/* GitHub Sync */
+.gh-sync-panel{background:var(--card);border:1px solid var(--gray-200);border-radius:8px;padding:12px;margin-top:10px}
+.gh-sync-panel .gh-header{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:8px}
+.gh-sync-panel .gh-header svg{width:14px;height:14px;color:var(--gray-500)}
+.gh-sync-panel .gh-row{margin-bottom:8px}
+.gh-sync-panel .gh-row label{font-size:10px;color:var(--gray-400);display:block;margin-bottom:2px}
+.gh-sync-panel .gh-row input{width:100%;padding:4px 6px;border:1px solid var(--gray-200);border-radius:4px;font-size:10px;outline:none;background:var(--gray-50)}
+.gh-sync-panel .gh-row input:focus{border-color:var(--primary)}
+.gh-sync-panel .gh-actions{display:flex;gap:4px}
+.gh-sync-panel .gh-actions button{flex:1;padding:4px 4px;font-size:9px;white-space:nowrap}
+.gh-sync-panel .gh-status{font-size:10px;margin-top:6px;padding:4px 6px;border-radius:4px;display:none}
+.gh-sync-panel .gh-status.ok{background:var(--success-light);color:var(--success);display:block}
+.gh-sync-panel .gh-status.err{background:var(--danger-light);color:var(--danger);display:block}</style>
  </head>
  <body>
  <div class="topbar">
@@ -513,6 +525,10 @@
  function init() { ld(); showView('tasks'); }
  init();
  </script>
- </body>
+ <script src="js/github-sync.js"></script>
+<script>
+document.getElementById('admin-sync-section').innerHTML = GH.renderSyncPanel();
+</script></body>
  </html>
+
 

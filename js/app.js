@@ -1,4 +1,4 @@
-﻿ /* ===== TaskHub User App ===== */
+ /* ===== TaskHub User App ===== */
  var S = { user: null, myCompany: null, view: 'list', filter: 'all', qf: 'all', selDate: null, calMon: new Date(), tagId: null };
  
  /* --- Data Layer --- */
@@ -257,7 +257,7 @@
    var t = gd.tasks ? gd.tasks.find(function (x) { return x.id === id; }) : null;
    if (!t) return;
    t.status = t.status === 'done' ? 'pending' : 'done';
-   gs(gd); renderTasks();
+   gs(gd); GH.autoPush(); renderTasks();
  }
  
  /* --- Tag/Note --- */
@@ -282,7 +282,7 @@
    var ud = u(); if (!ud.taskNotes) ud.taskNotes = {};
    ud.taskNotes[t.id] = document.getElementById('tag-note').value.trim();
    us(ud);
-   hideTagModal(); renderTasks();
+   hideTagModal(); GH.autoPush(); renderTasks();
  }
  
  /* --- Cooper --- */
@@ -363,4 +363,6 @@
  function start() { renderTasks(); renderCal(); schedR(); }
  function init() { showLogin(); }
  init();
+
+
 

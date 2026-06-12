@@ -15,11 +15,12 @@ GH.getToken = function() {
   if (GH._tokenCache) return GH._tokenCache;
   var t = localStorage.getItem('gh_token');
   if (t) { GH._tokenCache = t; return t; }
-  // 从任务数据中读取（管理员推送时自动附带）
   var gd = JSON.parse(localStorage.getItem('th3_global') || '{}');
   if (gd._token) { GH._tokenCache = gd._token; return gd._token; }
   return '';
 };
+
+GH.hasToken = function() { return !!GH.getToken(); };
 GH.setToken = function(t) {
   GH._tokenCache = t;
   localStorage.setItem('gh_token', t);
@@ -116,6 +117,7 @@ GH.initPartner = function() {
 
 /* --- 自动推送：操作后同步，失败时重试 --- */
 GH.autoPush = function() {
+  if (!GH.hasToken()) { console.warn('No GitHub token, auto-push disabled'); return; }
   var retryCount = 0;
   function doPush() {
     GH.syncToGitHub().then(function() {
@@ -184,6 +186,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

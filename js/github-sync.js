@@ -7,7 +7,7 @@ var GH = {
   _tokenCache: null
 };
 
-GH._rawUrl = 'https://raw.githubusercontent.com/' + GH.OWNER + '/' + GH.REPO + '/' + GH.BRANCH + '/' + GH.FILE;
+GH._rawUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
 GH._apiUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE;
 
 /* --- Token (localStorage优先，fallback到任务数据中的_token字段) --- */
@@ -186,6 +186,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

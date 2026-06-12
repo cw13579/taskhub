@@ -114,14 +114,21 @@ GH.initPartner = function() {
   });
 };
 
-/* --- 自动推送：操作后静默同步（失败不打断用户） --- */
+/* --- 自动推送：操作后同步，失败时重试 --- */
 GH.autoPush = function() {
-  GH.syncToGitHub().then(function() {
-    console.log('auto-push ok');
-  }).catch(function(err) {
-    console.warn('auto-push failed:', err.message);
-    // 静默失败，下次操作或刷新时重试
-  });
+  var retryCount = 0;
+  function doPush() {
+    GH.syncToGitHub().then(function() {
+      console.log('auto-push ok');
+    }).catch(function(err) {
+      console.warn('auto-push failed:', err.message);
+      if (retryCount < 2) {
+        retryCount++;
+        setTimeout(doPush, 1000);
+      }
+    });
+  }
+  doPush();
 };
 
 /* --- 自动拉取：操作后静默刷新本地数据 --- */
@@ -170,10 +177,14 @@ function saveTokenAndPull() {
 function saveTokenAndPush() {
   var token = (document.getElementById('gh-token-input') || {}).value || '';
   GH.setToken(token);
+  if (typeof sv === 'function') sv();
   GH.syncToGitHub().then(function() {
     GH.showStatus('Pushed to GitHub', true);
   }).catch(function(err) {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
+
+
 

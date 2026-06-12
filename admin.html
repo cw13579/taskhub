@@ -390,13 +390,23 @@ function selDate(ds) { S.selDate = ds === S.selDate ? null : ds; S._qf = 'all'; 
 
 /* --- Render --- */
 function render() {
-  ld(); renderCompanySidebar(); renderCal();
-  if (S.showView==='tasks') renderTaskList();
+  // Pull from GitHub to get partner updates first
+  GH.syncToLocal().then(function() {
+    ld(); renderCompanySidebar(); renderCal();
+    if (S.showView==='tasks') renderTaskList();
   else if (S.showView==='companies') renderCompanyMgmt();
   else if (S.showView==='coopers') renderCoopers();
   else if (S.showView==='approvals') renderApprovals();
   updateStats();
-}
+  }).catch(function() {
+    ld(); renderCompanySidebar(); renderCal();
+    if (S.showView==='tasks') renderTaskList();
+    else if (S.showView==='companies') renderCompanyMgmt();
+    else if (S.showView==='coopers') renderCoopers();
+    else if (S.showView==='approvals') renderApprovals();
+    updateStats();
+  });
+ }
 
 /* --- Task List --- */
 function renderTaskList() {
@@ -566,6 +576,7 @@ document.getElementById('admin-sync-section').innerHTML=GH.renderSyncPanel();
 </script>
 </body>
 </html>
+
 
 
 

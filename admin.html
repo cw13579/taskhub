@@ -1,220 +1,260 @@
- <!DOCTYPE html>
- <html lang="zh-CN">
- <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>TaskHub 管理后台</title>
- <style>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskHub 管理后台</title>
+<style>
+/* ===== Admin Page Layout ===== */
 html,body{height:100%;overflow:hidden}
-*{margin:0;padding:0;box-sizing:border-box}
- :root{--primary:#4F6EF7;--primary-light:#7B9AFF;--primary-dark:#3A56D4;--success:#22C55E;--success-light:#BBF7D0;--warning:#F59E0B;--warning-light:#FDE68A;--danger:#EF4444;--danger-light:#FEE2E2;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--bg:#F0F2F5;--card:#FFFFFF;--radius:10px;--shadow:0 2px 8px rgba(0,0,0,0.06)}
- body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--gray-800);display:flex;flex-direction:column}
- 
- /* Top Bar */
- .topbar{background:var(--primary);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
- .topbar h1{font-size:18px;font-weight:700}
- .topbar .badge{font-size:11px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:10px}
- .topbar-right{display:flex;gap:8px;align-items:center}
- 
- /* Stats Bar */
- .stats-bar{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--gray-200);flex-shrink:0}
- .stat-item{padding:10px 20px;text-align:center;flex:1;border-right:1px solid var(--gray-100)}
- .stat-item:last-child{border-right:none}
- .stat-item .sv{font-size:20px;font-weight:700;color:var(--primary)}
- .stat-item .sl{font-size:11px;color:var(--gray-400);margin-top:2px}
- .stat-item.done .sv{color:var(--success)}
- .stat-item.danger .sv{color:var(--danger)}
- 
- /* Layout */
- .main{display:flex;flex:1;min-height:0}
- .side{width:220px;background:var(--card);border-right:1px solid var(--gray-200);padding:12px;overflow-y:auto;flex-shrink:0}
- .side-section{margin-bottom:14px}
- .side-section-title{font-size:10px;color:var(--gray-400);text-transform:uppercase;letter-spacing:1px;padding:4px 6px;margin-bottom:4px}
- .side-item{padding:7px 8px;border-radius:6px;font-size:12px;color:var(--gray-600);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
- .side-item:hover{background:var(--gray-100)}
- .side-item.active{background:var(--primary);color:white}
- .side-item svg{width:14px;height:14px}
- .side-item .s-badge{background:var(--danger);color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:auto}
- 
- .content{flex:1;overflow-y:auto;padding:14px 20px;background:var(--bg)}
- 
- /* Toolbar */
- .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
- .search-box{position:relative;flex:1;max-width:300px}
- .search-box input{width:100%;padding:6px 10px 6px 28px;border:1px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--gray-50);outline:none}
- .search-box input:focus{border-color:var(--primary)}
- .search-box svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--gray-400)}
- .acf{display:flex;align-items:center;gap:6px}
- .acf select{padding:5px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:11px;background:var(--gray-50);outline:none}
- 
- /* Buttons */
- .btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
- .btn svg{width:13px;height:13px}
- .btn-primary{background:var(--primary);color:white}
- .btn-primary:hover{background:var(--primary-dark)}
- .btn-outline{background:transparent;border:1px solid var(--gray-300);color:var(--gray-600)}
- .btn-danger{background:var(--danger);color:white}
- .btn-sm{padding:4px 8px;font-size:10px}
- 
- /* Filter Tabs */
- .filter-tabs{display:flex;gap:3px;margin-bottom:14px}
- .filter-tab{padding:4px 10px;border-radius:12px;font-size:11px;border:none;background:var(--gray-100);color:var(--gray-500);cursor:pointer}
- .filter-tab.active{background:var(--primary);color:white}
- 
- /* Task Card */
- .tc{background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--gray-200);display:flex;gap:8px;align-items:flex-start;transition:all .15s}
- .tc:hover{border-color:var(--primary-light);box-shadow:var(--shadow)}
- .tc.com{opacity:0.5}
- .tc.ph{border-left:3px solid var(--danger)}
- .tc.pm{border-left:3px solid var(--warning)}
- .tc.pl{border-left:3px solid var(--gray-300)}
- .tck{width:18px;height:18px;border-radius:4px;border:2px solid var(--gray-300);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
- .tck.ch{background:var(--success);border-color:var(--success)}
- .tck.ch svg{color:white}
- .tck svg{width:11px;height:11px;color:transparent}
- .tb{flex:1;min-width:0}
- .tt{font-size:13px;font-weight:500;color:var(--gray-800);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
- .td{font-size:11px;color:var(--gray-500);margin-top:3px}
- .tl{font-size:11px;color:var(--primary);text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:3px 6px;background:rgba(79,110,247,0.08);border-radius:4px}
- .tl:hover{background:rgba(79,110,247,0.15)}
- .tl svg{width:11px;height:11px}
- .tm{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;align-items:center}
- .tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:500}
- .tg-c{background:rgba(79,110,247,0.08);color:var(--primary)}
- .tg-h{background:var(--danger-light);color:var(--danger)}
- .tg-m{background:var(--warning-light);color:var(--warning)}
- .tg-l{background:var(--gray-100);color:var(--gray-500)}
- .tg-d{background:var(--success-light);color:var(--success)}
- .tg-f{background:var(--warning-light);color:var(--warning)}
- .ta{display:flex;gap:2px;flex-shrink:0}
- .ta-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--gray-200);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
- .ta-btn svg{width:11px;height:11px;color:var(--gray-400)}
- .ta-btn:hover{background:var(--gray-100)}
- 
- /* Empty */
- .es{text-align:center;padding:40px 20px;color:var(--gray-400)}
- .es svg{width:40px;height:40px;color:var(--gray-300);margin-bottom:10px}
- .es h3{font-size:14px;color:var(--gray-500)}
- 
- /* Modal */
- .mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
- .mo.sh{opacity:1;pointer-events:auto}
- .md{background:var(--card);border-radius:12px;width:480px;max-width:92vw;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.15);max-height:90vh;overflow-y:auto}
- .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
- .mh h3{font-size:15px;font-weight:600}
- .mc{width:26px;height:26px;border-radius:5px;border:none;background:var(--gray-100);cursor:pointer;display:flex;align-items:center;justify-content:center}
- .mc svg{width:13px;height:13px;color:var(--gray-500)}
- .fg{margin-bottom:10px}
- .fg label{font-size:11px;font-weight:500;color:var(--gray-700);display:block;margin-bottom:3px}
- .fg input,.fg select,.fg textarea{width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px;outline:none;background:var(--gray-50)}
- .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);background:white}
- .fg textarea{min-height:50px;resize:vertical}
- .fr{display:flex;gap:8px}
- .fr .fg{flex:1}
- .fa{display:flex;gap:6px;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid var(--gray-100)}
- 
- /* Approval Item */
- .al{max-height:300px;overflow-y:auto}
- .ai{padding:8px;border:1px solid var(--gray-200);border-radius:6px;margin-bottom:6px}
- .ai .at{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
- .ai .at .an{font-weight:600;font-size:12px;color:var(--gray-700)}
- .ai .at .ad{font-size:10px;color:var(--gray-400)}
- .ai .ar{font-size:11px;color:var(--gray-600);margin-bottom:6px;padding:4px;background:var(--gray-50);border-radius:3px}
- .ai .aa{display:flex;gap:4px;justify-content:flex-end}
- 
- /* Cooper Section */
- .cp-section{background:var(--card);border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid var(--gray-200)}
- .cp-section h3{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
- .cp-section h3 svg{width:14px;height:14px;color:var(--primary)}
- .cp-section .cp-add{margin-left:auto;font-size:10px;color:var(--primary);cursor:pointer;background:rgba(79,110,247,0.08);padding:2px 6px;border-radius:3px;border:none}
- .cp-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--gray-100);border-radius:4px;font-size:11px;margin-bottom:3px;text-decoration:none;color:var(--gray-600)}
- .cp-item:hover{background:rgba(79,110,247,0.04)}
- .cp-item svg{width:12px;height:12px;color:var(--primary)}
- .cp-item .cn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .cp-item .cd{width:16px;height:16px;border:none;background:transparent;cursor:pointer;font-size:10px;color:var(--gray-400);border-radius:3px}
- .cp-item .cd:hover{background:var(--danger-light);color:var(--danger)}
- 
- /* Company Management - Full View */
- .cm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
- .cm-card{background:var(--card);border-radius:10px;border:1px solid var(--gray-200);overflow:hidden;transition:all .15s}
- .cm-card:hover{box-shadow:var(--shadow)}
- .cm-head{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
- .cm-head .cm-icon{width:32px;height:32px;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
- .cm-head .cm-info{flex:1}
- .cm-head .cm-name{font-size:13px;font-weight:600;color:var(--gray-800)}
- .cm-head .cm-count{font-size:10px;color:var(--gray-400)}
- .cm-head .cm-del{border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--gray-400);padding:4px 8px;border-radius:4px}
- .cm-head .cm-del:hover{background:var(--danger-light);color:var(--danger)}
- .cm-body{padding:10px 14px}
- .cm-members{display:flex;flex-wrap:wrap;gap:4px;min-height:28px;margin-bottom:8px}
- .cm-chip{font-size:11px;background:rgba(79,110,247,0.08);color:var(--primary);padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px}
- .cm-chip .chip-x{font-size:9px;cursor:pointer;color:var(--gray-400);padding:0 2px}
- .cm-chip .chip-x:hover{color:var(--danger)}
- .cm-empty{font-size:11px;color:var(--gray-400);padding:4px 0}
- .cm-add-row{display:flex;gap:4px}
- .cm-add-row input{flex:1;padding:5px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:11px;outline:none;background:var(--gray-50)}
- .cm-add-row input:focus{border-color:var(--primary)}
- .cm-add-row button{padding:5px 10px;border-radius:4px;border:none;background:var(--primary);color:white;font-size:11px;cursor:pointer;white-space:nowrap}
- 
- .cm-add-card{border:2px dashed var(--gray-200);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:100px;justify-content:center}
- .cm-add-card:hover{border-color:var(--primary);background:rgba(79,110,247,0.02)}
- .cm-add-card svg{width:24px;height:24px;color:var(--gray-300)}
- .cm-add-card span{font-size:12px;color:var(--gray-400)}
- .cm-add-form{display:flex;gap:6px;align-items:center}
- .cm-add-form input{flex:1;padding:8px 12px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;outline:none}
- .cm-add-form input:focus{border-color:var(--primary)}
- 
- ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
- /* GitHub Sync */
-.gh-sync-panel{background:var(--card);border:1px solid var(--gray-200);border-radius:8px;padding:12px;margin-top:10px}
-.gh-sync-panel .gh-header{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:8px}
-.gh-sync-panel .gh-header svg{width:14px;height:14px;color:var(--gray-500)}
-.gh-sync-panel .gh-row{margin-bottom:8px}
-.gh-sync-panel .gh-row label{font-size:10px;color:var(--gray-400);display:block;margin-bottom:2px}
-.gh-sync-panel .gh-row input{width:100%;padding:4px 6px;border:1px solid var(--gray-200);border-radius:4px;font-size:10px;outline:none;background:var(--gray-50)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--gray-800);display:flex;flex-direction:column}
+.app{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* Sidebar */
+.sidebar{width:240px;min-width:240px;background:var(--card);border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:16px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between}
+.sidebar-header h1{font-size:16px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:6px}
+.sidebar-header h1 svg{width:18px;height:18px}
+.sidebar-nav{padding:8px 10px;overflow-y:auto;flex:1}
+.nav-section{margin-bottom:12px}
+.nav-section-title{font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:1px;padding:3px 6px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12px;color:var(--gray-600);cursor:pointer;transition:all .15s}
+.nav-item:hover{background:var(--gray-100)}
+.nav-item.active{background:var(--primary);color:white}
+.nav-item svg{width:15px;height:15px;flex-shrink:0}
+.nav-item .s-badge{background:var(--danger);color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:auto}
+.sidebar-footer{padding:10px 14px;border-top:1px solid var(--gray-200)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.stat-item{padding:6px;border-radius:6px;background:var(--gray-50);text-align:center}
+.stat-item .sv{font-size:15px;font-weight:700;color:var(--primary)}
+.stat-item .sl{font-size:8px;color:var(--gray-400);margin-top:1px}
+.stat-item.done .sv{color:var(--success)}
+.stat-item.danger .sv{color:var(--danger)}
+
+/* Main Content */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Header */
+.main-header{padding:10px 20px;background:var(--card);border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.main-header h2{font-size:15px;font-weight:600;white-space:nowrap}
+.header-left{display:flex;align-items:center;gap:8px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search-bar{position:relative;width:200px}
+.search-bar input{width:100%;padding:6px 10px 6px 28px;border:1px solid var(--gray-200);border-radius:6px;font-size:11px;background:var(--gray-50);outline:none}
+.search-bar input:focus{border-color:var(--primary);background:white}
+.search-bar svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--gray-400)}
+.acf{display:flex;align-items:center;gap:6px}
+.acf select{padding:5px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:11px;background:var(--gray-50);outline:none}
+.acf label{font-size:11px;color:var(--gray-500)}
+
+/* Content body */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Calendar */
+.cal-wrap{padding:8px 20px 6px;background:var(--card);border-bottom:1px solid var(--gray-200);flex-shrink:0}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cal-nav h3{font-size:12px;font-weight:600;color:var(--gray-700)}
+.cal-nav-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--gray-200);background:var(--gray-50);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cal-nav-btn svg{width:11px;height:11px;color:var(--gray-500)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-grid .cw{font-size:9px;color:var(--gray-400);padding:2px}
+.cal-day{padding:3px 2px;border-radius:5px;font-size:10px;color:var(--gray-600);cursor:pointer;position:relative}
+.cal-day:hover{background:var(--gray-100)}
+.cal-day.today{background:var(--primary);color:white;font-weight:600}
+.cal-day.sel{background:var(--primary-dark);color:white}
+.cal-day.has-task::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--success)}
+.cal-day.om{color:var(--gray-300)}
+
+/* Task Area */
+.task-area{flex:1;padding:12px 20px;overflow-y:auto}
+
+/* Filter Tabs */
+.filter-tabs{display:flex;gap:4px;margin-bottom:10px}
+.filter-tab{padding:4px 10px;border-radius:12px;font-size:11px;border:none;background:var(--gray-100);color:var(--gray-500);cursor:pointer}
+.filter-tab.active{background:var(--primary);color:white}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-outline{background:transparent;border:1px solid var(--gray-300);color:var(--gray-600)}
+.btn-danger{background:var(--danger);color:white}
+.btn-sm{padding:4px 8px;font-size:10px}
+
+/* ===== Task Card ===== */
+.tc{background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--gray-200);display:flex;gap:8px;align-items:flex-start;transition:all .15s}
+.tc:hover{border-color:var(--primary-light);box-shadow:var(--shadow)}
+.tc.com{opacity:0.5}
+.tc.ph{border-left:3px solid var(--danger)}
+.tc.pm{border-left:3px solid var(--warning)}
+.tc.pl{border-left:3px solid var(--gray-300)}
+.tck{width:18px;height:18px;border-radius:4px;border:2px solid var(--gray-300);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.tck.ch{background:var(--success);border-color:var(--success)}
+.tck.ch svg{color:white}
+.tck svg{width:11px;height:11px;color:transparent}
+.tb{flex:1;min-width:0}
+.tt{font-size:13px;font-weight:500;color:var(--gray-800);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.td{font-size:11px;color:var(--gray-500);margin-top:3px}
+.tl{font-size:11px;color:var(--primary);text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:3px 6px;background:rgba(79,110,247,0.08);border-radius:4px}
+.tl:hover{background:rgba(79,110,247,0.15)}
+.tl svg{width:11px;height:11px}
+.tm{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:500}
+.tg-c{background:rgba(79,110,247,0.08);color:var(--primary)}
+.tg-h{background:var(--danger-light);color:var(--danger)}
+.tg-m{background:var(--warning-light);color:var(--warning)}
+.tg-l{background:var(--gray-100);color:var(--gray-500)}
+.tg-d{background:var(--success-light);color:var(--success)}
+.tg-f{background:var(--warning-light);color:var(--warning)}
+.ta{display:flex;gap:2px;flex-shrink:0}
+.ta-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--gray-200);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ta-btn svg{width:11px;height:11px;color:var(--gray-400)}
+.ta-btn:hover{background:var(--gray-100)}
+
+/* Empty */
+.es{text-align:center;padding:40px 20px;color:var(--gray-400)}
+.es svg{width:40px;height:40px;color:var(--gray-300);margin-bottom:10px}
+.es h3{font-size:14px;color:var(--gray-500)}
+
+/* ===== Modal ===== */
+.mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.sh{opacity:1;pointer-events:auto}
+.md{background:var(--card);border-radius:12px;width:480px;max-width:92vw;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.15);max-height:90vh;overflow-y:auto}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mh h3{font-size:15px;font-weight:600}
+.mc{width:26px;height:26px;border-radius:5px;border:none;background:var(--gray-100);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mc svg{width:13px;height:13px;color:var(--gray-500)}
+.fg{margin-bottom:10px}
+.fg label{font-size:11px;font-weight:500;color:var(--gray-700);display:block;margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:5px;font-size:12px;outline:none;background:var(--gray-50)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);background:white}
+.fg textarea{min-height:50px;resize:vertical}
+.fr{display:flex;gap:8px}
+.fr .fg{flex:1}
+.fa{display:flex;gap:6px;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid var(--gray-100)}
+
+/* Approval */
+.al{max-height:300px;overflow-y:auto}
+.ai{padding:8px;border:1px solid var(--gray-200);border-radius:6px;margin-bottom:6px}
+.ai .at{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ai .at .an{font-weight:600;font-size:12px;color:var(--gray-700)}
+.ai .at .ad{font-size:10px;color:var(--gray-400)}
+.ai .ar{font-size:11px;color:var(--gray-600);margin-bottom:6px;padding:4px;background:var(--gray-50);border-radius:3px}
+.ai .aa{display:flex;gap:4px;justify-content:flex-end}
+
+/* Cooper */
+.cp-item{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--gray-100);border-radius:6px;font-size:12px;margin-bottom:4px;text-decoration:none;color:var(--gray-600);background:var(--card)}
+.cp-item:hover{background:rgba(79,110,247,0.04)}
+.cp-item svg{width:13px;height:13px;color:var(--primary);flex-shrink:0}
+.cp-item .cn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-item .cd{width:20px;height:20px;border:none;background:transparent;cursor:pointer;font-size:10px;color:var(--gray-400);border-radius:3px;display:flex;align-items:center;justify-content:center}
+.cp-item .cd:hover{background:var(--danger-light);color:var(--danger)}
+
+/* Company Management */
+.cm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.cm-card{background:var(--card);border-radius:10px;border:1px solid var(--gray-200);overflow:hidden}
+.cm-card:hover{box-shadow:var(--shadow)}
+.cm-head{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
+.cm-head .cm-icon{width:32px;height:32px;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.cm-head .cm-info{flex:1}
+.cm-head .cm-name{font-size:13px;font-weight:600;color:var(--gray-800)}
+.cm-head .cm-count{font-size:10px;color:var(--gray-400)}
+.cm-head .cm-del{border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--gray-400);padding:4px 8px;border-radius:4px}
+.cm-head .cm-del:hover{background:var(--danger-light);color:var(--danger)}
+.cm-body{padding:10px 14px}
+.cm-members{display:flex;flex-wrap:wrap;gap:4px;min-height:28px;margin-bottom:8px}
+.cm-chip{font-size:11px;background:rgba(79,110,247,0.08);color:var(--primary);padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px}
+.cm-chip .chip-x{font-size:9px;cursor:pointer;color:var(--gray-400);padding:0 2px}
+.cm-chip .chip-x:hover{color:var(--danger)}
+.cm-empty{font-size:11px;color:var(--gray-400);padding:4px 0}
+.cm-add-row{display:flex;gap:4px}
+.cm-add-row input{flex:1;padding:5px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:11px;outline:none;background:var(--gray-50)}
+.cm-add-row input:focus{border-color:var(--primary)}
+.cm-add-row button{padding:5px 10px;border-radius:4px;border:none;background:var(--primary);color:white;font-size:11px;cursor:pointer;white-space:nowrap}
+.cm-add-form{display:flex;gap:6px;align-items:center}
+.cm-add-form input{flex:1;padding:8px 12px;border:1px solid var(--gray-200);border-radius:6px;font-size:13px;outline:none}
+.cm-add-form input:focus{border-color:var(--primary)}
+
+/* GitHub Sync */
+.gh-sync-panel{background:var(--card);border:1px solid var(--gray-200);border-radius:8px;padding:10px;margin-top:8px}
+.gh-sync-panel .gh-header{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gray-700);margin-bottom:6px}
+.gh-sync-panel .gh-header svg{width:13px;height:13px;color:var(--gray-500)}
+.gh-sync-panel .gh-row{margin-bottom:6px}
+.gh-sync-panel .gh-row label{font-size:9px;color:var(--gray-400);display:block;margin-bottom:2px}
+.gh-sync-panel .gh-row input{width:100%;padding:4px 6px;border:1px solid var(--gray-200);border-radius:4px;font-size:9px;outline:none;background:var(--gray-50)}
 .gh-sync-panel .gh-row input:focus{border-color:var(--primary)}
 .gh-sync-panel .gh-actions{display:flex;gap:4px}
-.gh-sync-panel .gh-actions button{flex:1;padding:4px 4px;font-size:9px;white-space:nowrap}
-.gh-sync-panel .gh-status{font-size:10px;margin-top:6px;padding:4px 6px;border-radius:4px;display:none}
+.gh-sync-panel .gh-actions button{flex:1;padding:3px 4px;font-size:9px;white-space:nowrap}
+.gh-sync-panel .gh-status{font-size:9px;margin-top:4px;padding:3px 6px;border-radius:4px;display:none}
 .gh-sync-panel .gh-status.ok{background:var(--success-light);color:var(--success);display:block}
 .gh-sync-panel .gh-status.err{background:var(--danger-light);color:var(--danger);display:block}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
+
 </style>
- </head>
- <body>
- <div class="topbar">
-   <h1>TaskHub 管理后台</h1>
-   <div class="topbar-right">
-     <span class="badge">管理员</span>
-     <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3)" onclick="window.open('index.html')">用户入口</button>
-   </div>
- </div>
- <div class="stats-bar">
-   <div class="stat-item"><div class="sv" id="s-total">0</div><div class="sl">总任务</div></div>
-   <div class="stat-item"><div class="sv" id="s-companies">0</div><div class="sl">公司数</div></div>
-   <div class="stat-item done"><div class="sv" id="s-done">0</div><div class="sl">已完成</div></div>
-   <div class="stat-item"><div class="sv" id="s-pending">0</div><div class="sl">待处理</div></div>
-   <div class="stat-item"><div class="sv" id="s-feedback">0</div><div class="sl">待反馈</div></div>
-   <div class="stat-item danger"><div class="sv" id="s-approvals">0</div><div class="sl">待审批</div></div>
- </div>
- <div class="main">
-   <div class="side">
-     <div class="side-section">
-       <div class="side-section-title">公司筛选</div>
-       <div class="side-item active" onclick="setComp('__all__')" id="f-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>全部公司</div>
-       <div id="company-sidebar-list"></div>
-     </div>
-     <div class="side-section">
-       <div class="side-section-title">管理功能</div>
-       <div class="side-item" onclick="showView('tasks')" id="nav-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>任务管理</div>
-       <div class="side-item" onclick="showView('companies')" id="nav-companies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2 2h-4a2 2 0 00-2 2v12"/></svg>公司管理</div>
-       <div class="side-item" onclick="showView('coopers')" id="nav-coopers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>常用Cooper</div>
-       <div class="side-item" onclick="showView('approvals')" id="nav-approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>审批管理<span class="s-badge" id="badge-approvals" style="display:none">0</span></div></div><div id="admin-sync-section"></div>
-     </div>
-   </div>
-   <div class="content" id="admin-content"></div>
- </div>
- 
- <!-- Task Modal -->
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>管理后台</h1>
+      <button class="btn btn-outline" style="font-size:10px;padding:3px 8px" onclick="window.open('index.html')">伙伴入口</button>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">公司筛选</div>
+        <div class="nav-item active" onclick="setComp('__all__')" id="f-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>全部公司</div>
+        <div id="company-sidebar-list"></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">管理功能</div>
+        <div class="nav-item" onclick="showView('tasks')" id="nav-tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>任务管理</div>
+        <div class="nav-item" onclick="showView('companies')" id="nav-companies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2 2h-4a2 2 0 00-2 2v12"/></svg>公司管理</div>
+        <div class="nav-item" onclick="showView('coopers')" id="nav-coopers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>常用Cooper</div>
+        <div class="nav-item" onclick="showView('approvals')" id="nav-approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>审批管理<span class="s-badge" id="badge-approvals" style="display:none">0</span></div>
+      </div>
+      <div id="admin-sync-section"></div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="stat-grid">
+        <div class="stat-item"><div class="sv" id="s-total">0</div><div class="sl">总任务</div></div>
+        <div class="stat-item done"><div class="sv" id="s-done">0</div><div class="sl">已完成</div></div>
+        <div class="stat-item"><div class="sv" id="s-pending">0</div><div class="sl">待处理</div></div>
+        <div class="stat-item danger"><div class="sv" id="s-feedback">0</div><div class="sl">待反馈</div></div>
+        <div class="stat-item"><div class="sv" id="s-companies">0</div><div class="sl">公司</div></div>
+        <div class="stat-item"><div class="sv" id="s-approvals">0</div><div class="sl">审批</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="main-header">
+      <h2 id="view-title">任务管理</h2>
+      <div class="header-right">
+        <div class="acf"><label>公司</label><select onchange="setComp(this.value)" id="ad-comp-sel"><option value="__all__">全部</option></select></div>
+        <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索..." oninput="searchTasks()" id="ad-search"></div>
+        <button class="btn btn-primary" onclick="showAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="cal-wrap" id="admin-cal-wrap">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <h3 id="calendar-title"></h3>
+          <button class="cal-nav-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="cal-grid" id="calendar-grid"></div>
+      </div>
+      <div class="task-area" id="admin-content"></div>
+    </div>
+  </div>
+</div>
+<!-- Task Modal -->
  <div class="mo" id="task-modal"><div class="md">
    <div class="mh"><h3 id="tm-title">新增任务</h3><button class="mc" onclick="hideModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
    <div class="fg"><label>任务名称</label><input type="text" id="f-name"></div>
@@ -237,293 +277,258 @@ html,body{height:100%;overflow:hidden}
    <div class="fa"><button class="btn btn-outline" onclick="hideCooperModal()">取消</button><button class="btn btn-primary" onclick="saveCooper()">保存</button></div>
  </div></div>
  
- <script>
- var S = { filter: '__all__', editId: null, showView: 'tasks', _qf: 'all' };
  
- /* --- Data Layer --- */
- function ld() {
-   try {
-     var d = localStorage.getItem('th3_global');
-     if (d) { var o = JSON.parse(d); S.tasks = o.tasks || []; S.coopers = o.adminCoopers || []; S.approvals = o.approvals || []; S.companies = o.companies || []; S.users = o.users || {}; }
-     else { S.tasks = []; S.coopers = []; S.approvals = []; S.companies = []; S.users = {}; }
-   } catch (e) { S.tasks = []; S.coopers = []; S.approvals = []; S.companies = []; S.users = {}; }
-   // Ensure default companies if none
-   if (!S.companies.length) { S.companies = ['杭州创业兄弟', '杭州幸福千万家', '杭州租哥辆', '杭州讯途同创']; sv(); }
- }
- function sv() {
-   localStorage.setItem('th3_global', JSON.stringify({
-     tasks: S.tasks, adminCoopers: S.coopers, approvals: S.approvals, companies: S.companies, users: S.users
-   }));
- }
- function td() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
- function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
- 
- /* --- Navigation --- */
- function showView(v) {
-   S.showView = v;
-   document.querySelectorAll('.side-item[id^="nav-"]').forEach(function (e) { e.classList.remove('active'); });
-   var nav = document.getElementById('nav-' + v);
-   if (nav) nav.classList.add('active');
-   render();
- }
- 
- function setComp(c) {
-   S.filter = c;
-   document.querySelectorAll('.side-item[id^="f-"]').forEach(function (e) { e.classList.remove('active'); });
-   var el = c === '__all__' ? document.getElementById('f-all') : document.getElementById('f-' + c);
-   if (el) el.classList.add('active');
-   render();
- }
- 
- /* --- Company Sidebar --- */
- function renderCompanySidebar() {
-   var el = document.getElementById('company-sidebar-list');
-   var h = '';
-   S.companies.forEach(function (c) {
-     h += '<div class="side-item' + (S.filter === c ? ' active' : '') + '" id="f-' + c + '" onclick="setComp(\'' + c.replace(/'/g, "\\'") + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2 2h-4a2 2 0 00-2 2v12"/></svg>' + c + '</div>';
-   });
-   el.innerHTML = h;
- }
- 
- /* --- Render Main --- */
- function render() {
-   ld(); renderCompanySidebar();
-   if (S.showView === 'tasks') renderTaskList();
-   else if (S.showView === 'companies') renderCompanyMgmt();
-   else if (S.showView === 'coopers') renderCoopers();
-   else if (S.showView === 'approvals') renderApprovals();
-   updateStats();
- }
- 
- /* --- Task List View --- */
- function renderTaskList() {
-   var t = S.tasks.slice();
-   if (S.filter !== '__all__') t = t.filter(function (x) { return x.company === S.filter; });
-   if (S._qf === 'today') t = t.filter(function (x) { return x.date === td(); });
-   else if (S._qf === 'pending') t = t.filter(function (x) { return x.status === 'pending'; });
-   else if (S._qf === 'done') t = t.filter(function (x) { return x.status === 'done'; });
- 
-   var a = document.getElementById('admin-content');
-   var h = '<div class="toolbar"><div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索..." oninput="searchTasks()" id="ad-search"></div><div class="acf"><label style="font-size:11px;color:var(--gray-500)">公司</label><select onchange="setComp(this.value)" id="ad-comp-sel"><option value="__all__">全部</option>';
-   S.companies.forEach(function (c) { h += '<option value="' + c + '"' + (S.filter === c ? ' selected' : '') + '>' + c + '</option>'; });
-   h += '</select></div></div>';
-   h += '<div class="filter-tabs"><button class="filter-tab' + (S._qf === 'all' ? ' active' : '') + '" onclick="setQF(\'all\',this)">全部</button><button class="filter-tab' + (S._qf === 'today' ? ' active' : '') + '" onclick="setQF(\'today\',this)">今天</button><button class="filter-tab' + (S._qf === 'pending' ? ' active' : '') + '" onclick="setQF(\'pending\',this)">待处理</button><button class="filter-tab' + (S._qf === 'done' ? ' active' : '') + '" onclick="setQF(\'done\',this)">已完成</button></div>';
-   h += '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn btn-primary" onclick="showAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增任务</button></div>';
- 
-   var sq = (document.getElementById('ad-search') || {}).value || '';
-   if (sq) t = t.filter(function (x) { return x.name.indexOf(sq) >= 0 || (x.partner || '').indexOf(sq) >= 0; });
-   if (!t.length) { h += '<div class="es"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg><h3>暂无任务</h3></div>'; a.innerHTML = h; return; }
-   t.sort(function (a, b) { return b.date.localeCompare(a.date) || { high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority]; });
-   t.forEach(function (x) { h += taskCard(x); });
-   a.innerHTML = h;
- }
- 
- function searchTasks() { renderTaskList(); }
- function setQF(qf, btn) { S._qf = qf; render(); }
- 
- function taskCard(t) {
-   var SL = { pending: '待处理', done: '已完成' };
-   var PL = { high: '高', medium: '中', low: '低' };
-   var cc = t.status === 'done' ? 'com' : '';
-   var pc = 'p' + t.priority[0];
-   var kc = t.status === 'done' ? 'ch' : '';
-   var fb = t.needFeedback ? '<span class="tag tg-f">需反馈</span>' : '';
-   var dl = '';
-   if (t.needFeedback && t.feedbackDeadline) {
-     if (t.feedbackDeadline.indexOf('T') >= 0) {
-       var dd = new Date(t.feedbackDeadline);
-       dl = '<span class="tag tg-f" style="background:var(--danger-light);color:var(--danger)">截止 ' + (dd.getMonth()+1) + '/' + dd.getDate() + ' ' + String(dd.getHours()).padStart(2,'0') + ':' + String(dd.getMinutes()).padStart(2,'0') + '</span>';
-     } else { dl = '<span class="tag tg-f">截止 ' + t.feedbackDeadline + '</span>'; }
-   }
-   return '<div class="tc ' + cc + ' ' + pc + '"><div class="tck ' + kc + '" onclick="tog(\'' + t.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt"><span class="tag tg-c">' + t.company + '</span>' + t.name + fb + dl + '</div>' + (t.desc ? '<div class="td">' + t.desc + '</div>' : '') + (t.link ? '<a class="tl" href="' + t.link + '" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + (t.tableName || '打开表格') + '</a>' : '') + '<div class="tm"><span class="tag tg-' + t.priority[0] + '">' + PL[t.priority] + '</span><span class="tag tg-' + (t.status === 'done' ? 'd' : 'l') + '">' + SL[t.status] + '</span>' + (t.partner ? '<span class="tag tg-f">👤 ' + t.partner + '</span>' : '') + '</div></div><div class="ta"><button class="ta-btn" onclick="editTask(\'' + t.id + '\')" title="编辑"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ta-btn" onclick="delTask(\'' + t.id + '\')" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>';
- }
- 
- function tog(id) { var t = S.tasks.find(function (x) { return x.id === id; }); if (!t) return; t.status = t.status === 'done' ? 'pending' : 'done'; sv(); render(); }
- 
- /* --- Task CRUD --- */
- function showAdd() {
-   S.editId = null; document.getElementById('tm-title').textContent = '新增任务'; resetForm();
-   document.getElementById('task-modal').classList.add('sh');
- }
- function resetForm() {
-   document.getElementById('f-name').value = '';
-   var sel = document.getElementById('f-company');
-   sel.innerHTML = S.companies.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-   document.getElementById('f-priority').value = 'medium';
-   document.getElementById('f-partner').value = '';
-   document.getElementById('f-table-name').value = '';
-   document.getElementById('f-link').value = '';
-   document.getElementById('f-desc').value = '';
-   document.getElementById('f-date').value = td();
-   document.getElementById('f-target').value = '';
-   document.getElementById('f-fb').value = '0';
-   document.getElementById('f-fb-time').value = '';
-   document.getElementById('f-fb-req').value = '';
-   document.getElementById('fb-time-g').style.display = 'none';
-   document.getElementById('fb-req-g').style.display = 'none';
- }
- function editTask(id) {
-   var t = S.tasks.find(function (x) { return x.id === id; }); if (!t) return;
-   S.editId = id; document.getElementById('tm-title').textContent = '编辑任务';
-   document.getElementById('f-name').value = t.name;
-   var sel = document.getElementById('f-company');
-   sel.innerHTML = S.companies.map(function (c) { return '<option value="' + c + '"' + (c === t.company ? ' selected' : '') + '>' + c + '</option>'; }).join('');
-   document.getElementById('f-priority').value = t.priority;
-   document.getElementById('f-partner').value = t.partner || '';
-   document.getElementById('f-table-name').value = t.tableName || '';
-   document.getElementById('f-link').value = t.link || '';
-   document.getElementById('f-desc').value = t.desc || '';
-   document.getElementById('f-date').value = t.date;
-   document.getElementById('f-target').value = t.target || '';
-   document.getElementById('f-fb').value = t.needFeedback ? '1' : '0';
-   document.getElementById('f-fb-time').value = t.feedbackDeadline || '';
-   document.getElementById('f-fb-req').value = t.feedbackReq || '';
-   tbFB();
-   document.getElementById('task-modal').classList.add('sh');
- }
- function hideModal() { document.getElementById('task-modal').classList.remove('sh'); }
- function tbFB() {
-   var v = document.getElementById('f-fb').value;
-   document.getElementById('fb-time-g').style.display = v === '1' ? 'block' : 'none';
-   document.getElementById('fb-req-g').style.display = v === '1' ? 'block' : 'none';
- }
- function saveTask() {
-   var name = document.getElementById('f-name').value.trim();
-   if (!name) { alert('请输入任务名称'); return; }
-   var d = {
-     name: name, company: document.getElementById('f-company').value,
-     priority: document.getElementById('f-priority').value,
-     partner: document.getElementById('f-partner').value.trim(),
-     tableName: document.getElementById('f-table-name').value.trim(),
-     link: document.getElementById('f-link').value.trim(),
-     desc: document.getElementById('f-desc').value.trim(),
-     date: document.getElementById('f-date').value || td(),
-     target: document.getElementById('f-target').value.trim(),
-     needFeedback: document.getElementById('f-fb').value === '1',
-     feedbackDeadline: document.getElementById('f-fb-time').value || '',
-     feedbackReq: document.getElementById('f-fb-req').value.trim()
-   };
-   if (S.editId) { var t = S.tasks.find(function (x) { return x.id === S.editId; }); if (t) Object.assign(t, d); }
-   else { S.tasks.push({ id: uid(), userNote: '', status: 'pending', createdAt: Date.now() }); Object.assign(S.tasks[S.tasks.length - 1], d); }
-   sv(); hideModal(); render();
- }
- function delTask(id) { if (!confirm('确认删除？')) return; S.tasks = S.tasks.filter(function (x) { return x.id !== id; }); sv(); render(); }
- 
- /* --- Company Management View --- */
- function renderCompanyMgmt() {
-   var a = document.getElementById('admin-content');
-   var h = '<div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between"><h2 style="font-size:16px;font-weight:600">公司管理</h2></div>';
-   h += '<div class="cm-add-form" style="margin-bottom:16px"><input type="text" id="new-cname" placeholder="输入新公司名称" style="max-width:280px"><button class="btn btn-primary" onclick="addCompany()">+ 添加公司</button></div>';
-   h += '<div class="cm-grid">';
-   S.companies.forEach(function (c) {
-     var members = S.users[c] || [];
-     h += '<div class="cm-card"><div class="cm-head"><div class="cm-icon">' + c.charAt(0) + '</div><div class="cm-info"><div class="cm-name">' + c + '</div><div class="cm-count">' + members.length + ' 位成员</div></div><button class="cm-del" onclick="delCompany(\'' + c.replace(/'/g, "\\'") + '\')">删除</button></div>';
-     h += '<div class="cm-body"><div class="cm-members">';
-     if (members.length) {
-       members.forEach(function (m) {
-         h += '<span class="cm-chip">' + m + '<span class="chip-x" onclick="removeMember(\'' + c.replace(/'/g, "\\'") + '\',\'' + m.replace(/'/g, "\\'") + '\')">✕</span></span>';
-       });
-     } else { h += '<span class="cm-empty">暂无成员</span>'; }
-     h += '</div><div class="cm-add-row"><input id="nm-' + c.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '" placeholder="输入成员名字"><button onclick="addMember(\'' + c.replace(/'/g, "\\'") + '\')">添加</button></div></div></div>';
-   });
-   h += '</div>';
-   a.innerHTML = h;
- }
- function addCompany() {
-   var n = document.getElementById('new-cname').value.trim();
-   if (!n) return; if (S.companies.indexOf(n) >= 0) { alert('该公司已存在'); return; }
-   S.companies.push(n); sv(); render();
- }
- function delCompany(n) {
-   if (!confirm('确认删除公司"' + n + '"？相关任务不会删除。')) return;
-   S.companies = S.companies.filter(function (x) { return x !== n; }); sv(); render();
- }
- function addMember(comp) {
-   var id = 'nm-' + comp.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-   var inp = document.getElementById(id);
-   var n = inp.value.trim(); if (!n) return;
-   if (!S.users[comp]) S.users[comp] = [];
-   if (S.users[comp].indexOf(n) >= 0) { alert('该成员已存在'); return; }
-   S.users[comp].push(n); sv(); render();
- }
- function removeMember(comp, user) {
-   if (!confirm('确认移除"' + user + '"？')) return;
-   if (!S.users[comp]) return;
-   S.users[comp] = S.users[comp].filter(function (x) { return x !== user; });
-   sv(); render();
- }
- 
- /* --- Cooper Management View --- */
- function renderCoopers() {
-   var a = document.getElementById('admin-content');
-   var h = '<div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between"><h2 style="font-size:16px;font-weight:600">常用Cooper链接</h2><button class="btn btn-primary" onclick="showCooperModal()">+ 添加</button></div>';
-   if (!S.coopers.length) { h += '<div class="es"><h3>暂无链接</h3></div>'; }
-   else {
-     S.coopers.forEach(function (c) {
-       h += '<div class="cp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><a class="cn" href="' + c.link + '" target="_blank" style="text-decoration:none;color:var(--gray-600)">' + c.name + '</a><span class="tag tg-c" style="margin-left:4px">' + (c.company === '__all__' ? '全部公司' : c.company) + '</span><button class="cd" onclick="delCooper(\'' + c.id + '\')">✕</button></div>';
-     });
-   }
-   a.innerHTML = h;
- }
- function showCooperModal() {
-   document.getElementById('c-name').value = '';
-   document.getElementById('c-link').value = '';
-   var sel = document.getElementById('c-company');
-   sel.innerHTML = '<option value="__all__">全部公司</option>' + S.companies.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-   document.getElementById('cooper-modal').classList.add('sh');
- }
- function hideCooperModal() { document.getElementById('cooper-modal').classList.remove('sh'); }
- function saveCooper() {
-   var n = document.getElementById('c-name').value.trim();
-   var l = document.getElementById('c-link').value.trim();
-   if (!n || !l) { alert('请填写名称和链接'); return; }
-   S.coopers.push({ id: uid(), name: n, link: l, company: document.getElementById('c-company').value, byAdmin: true });
-   sv(); hideCooperModal(); render();
- }
- function delCooper(id) { S.coopers = S.coopers.filter(function (x) { return x.id !== id; }); sv(); render(); }
- 
- /* --- Approvals View --- */
- function renderApprovals() {
-   var a = document.getElementById('admin-content');
-   var pending = S.approvals.filter(function (a) { return a.status === 'pending'; });
-   var h = '<div style="margin-bottom:16px"><h2 style="font-size:16px;font-weight:600">审批管理</h2></div>';
-   if (!pending.length) { h += '<div class="es"><h3>暂无待审批</h3></div>'; }
-   else {
-     pending.forEach(function (a) {
-       h += '<div class="ai"><div class="at"><span class="an">' + a.from + ' → ' + a.target + '</span><span class="ad">' + new Date(a.createdAt).toLocaleDateString() + '</span></div><div class="ar">' + a.reason + '</div><div class="aa"><button class="btn btn-sm btn-primary" onclick="appr(\'' + a.id + '\')">同意</button><button class="btn btn-sm btn-danger" onclick="rej(\'' + a.id + '\')">拒绝</button></div></div>';
-     });
-   }
-   a.innerHTML = h;
- }
- function appr(id) { var a = S.approvals.find(function (x) { return x.id === id; }); if (!a) return; a.status = 'approved'; sv(); render(); }
- function rej(id) { var a = S.approvals.find(function (x) { return x.id === id; }); if (!a) return; a.status = 'rejected'; sv(); render(); }
- 
- /* --- Stats --- */
- function updateStats() {
-   document.getElementById('s-total').textContent = S.tasks.length;
-   document.getElementById('s-companies').textContent = S.companies.length;
-   document.getElementById('s-done').textContent = S.tasks.filter(function (t) { return t.status === 'done'; }).length;
-   document.getElementById('s-pending').textContent = S.tasks.filter(function (t) { return t.status === 'pending'; }).length;
-   document.getElementById('s-feedback').textContent = S.tasks.filter(function (t) { return t.needFeedback && t.date === td() && t.status !== 'done'; }).length;
-   var pendingApp = S.approvals.filter(function (a) { return a.status === 'pending'; }).length;
-   document.getElementById('s-approvals').textContent = pendingApp;
-   var badge = document.getElementById('badge-approvals');
-   badge.textContent = pendingApp; badge.style.display = pendingApp ? 'inline' : 'none';
- }
- 
- function init() { ld(); showView('tasks'); }
- init();
- </script>
- <script src="js/github-sync.js"></script>
 <script>
-document.getElementById('admin-sync-section').innerHTML = GH.renderSyncPanel();
-</script></body>
- </html>
+var S = { filter: '__all__', editId: null, showView: 'tasks', _qf: 'all', calMon: new Date(), selDate: null };
 
+/* --- Data Layer --- */
+function ld() {
+  try {
+    var d = localStorage.getItem('th3_global');
+    if (d) { var o = JSON.parse(d); S.tasks = o.tasks || []; S.coopers = o.adminCoopers || []; S.approvals = o.approvals || []; S.companies = o.companies || []; S.users = o.users || {}; }
+    else { S.tasks = []; S.coopers = []; S.approvals = []; S.companies = []; S.users = {}; }
+  } catch (e) { S.tasks = []; S.coopers = []; S.approvals = []; S.companies = []; S.users = {}; }
+  if (!S.companies.length) { S.companies = ['杭州创业兄弟','杭州幸福千万家','杭州租哥辆','杭州讯途同创']; sv(); }
+}
+function sv() {
+  localStorage.setItem('th3_global', JSON.stringify({
+    tasks: S.tasks, adminCoopers: S.coopers, approvals: S.approvals, companies: S.companies, users: S.users
+  }));
+}
+function td() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function today() { return td(); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
+/* --- Navigation --- */
+function showView(v) {
+  S.showView = v;
+  document.querySelectorAll('.nav-item[id^="nav-"]').forEach(function(e){e.classList.remove('active')});
+  var n = document.getElementById('nav-' + v);
+  if (n) n.classList.add('active');
+  document.getElementById('view-title').textContent = v==='tasks'?'任务管理':v==='companies'?'公司管理':v==='coopers'?'常用Cooper':'审批管理';
+  document.getElementById('admin-cal-wrap').style.display = v==='tasks'?'block':'none';
+  render();
+}
 
+function setComp(c) {
+  S.filter = c;
+  document.querySelectorAll('.nav-item[id^="f-"]').forEach(function(e){e.classList.remove('active')});
+  var el = c === '__all__' ? document.getElementById('f-all') : document.getElementById('f-' + c);
+  if (el) el.classList.add('active');
+  render();
+}
 
+function renderCompanySidebar() {
+  var el = document.getElementById('company-sidebar-list'); var h = '';
+  S.companies.forEach(function(c){
+    h += '<div class="nav-item' + (S.filter===c?' active':'') + '" id="f-' + c + '" onclick="setComp(\'' + c.replace(/'/g,"\\'") + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2 2h-4a2 2 0 00-2 2v12"/></svg>' + c + '</div>';
+  });
+  el.innerHTML = h;
+}
 
+/* --- Calendar --- */
+function changeMonth(d) { S.calMon = new Date(S.calMon.getFullYear(), S.calMon.getMonth() + d, 1); renderCal(); }
 
+function renderCal() {
+  var m = S.calMon;
+  document.getElementById('calendar-title').textContent = m.getFullYear() + '年' + (m.getMonth()+1) + '月';
+  var g = document.getElementById('calendar-grid');
+  var h = ['日','一','二','三','四','五','六'].map(function(x){return '<div class="cw">'+x+'</div>'}).join('');
+  var fd = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
+  var dim = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
+  var pd = new Date(m.getFullYear(), m.getMonth(), 0).getDate();
+  var ts = today();
+  var tds = new Set((S.tasks||[]).map(function(x){return x.date}));
+  for (var i = fd-1; i>=0; i--) { h += '<div class="cal-day om">'+(pd-i)+'</div>'; }
+  for (var d=1; d<=dim; d++) {
+    var ds = m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var cls = ['cal-day'];
+    if (ds===ts) cls.push('today');
+    if (S.selDate===ds) cls.push('sel');
+    if (tds.has(ds)) cls.push('has-task');
+    h += '<div class="'+cls.join(' ')+'" onclick="selDate(\''+ds+'\')">'+d+'</div>';
+  }
+  var r = 7 - ((fd+dim)%7); if (r<7) for (var d=1; d<=r; d++) { h += '<div class="cal-day om">'+d+'</div>'; }
+  g.innerHTML = h;
+}
 
+function selDate(ds) { S.selDate = ds === S.selDate ? null : ds; S._qf = 'all'; renderCal(); renderTaskList(); }
 
+/* --- Render --- */
+function render() {
+  ld(); renderCompanySidebar(); renderCal();
+  if (S.showView==='tasks') renderTaskList();
+  else if (S.showView==='companies') renderCompanyMgmt();
+  else if (S.showView==='coopers') renderCoopers();
+  else if (S.showView==='approvals') renderApprovals();
+  updateStats();
+}
+
+/* --- Task List --- */
+function renderTaskList() {
+  var t = S.tasks.slice();
+  if (S.filter!=='__all__') t = t.filter(function(x){return x.company===S.filter});
+  if (S._qf==='today') t = t.filter(function(x){return x.date===today()});
+  else if (S._qf==='pending') t = t.filter(function(x){return x.status==='pending'});
+  else if (S._qf==='done') t = t.filter(function(x){return x.status==='done'});
+  if (S.selDate) t = t.filter(function(x){return x.date===S.selDate});
+
+  var a = document.getElementById('admin-content');
+  var h = '<div class="filter-tabs"><button class="filter-tab'+(S._qf==='all'?' active':'')+'" onclick="setQF(\'all\',this)">全部</button><button class="filter-tab'+(S._qf==='today'?' active':'')+'" onclick="setQF(\'today\',this)">今天</button><button class="filter-tab'+(S._qf==='pending'?' active':'')+'" onclick="setQF(\'pending\',this)">待处理</button><button class="filter-tab'+(S._qf==='done'?' active':'')+'" onclick="setQF(\'done\',this)">已完成</button></div>';
+
+  var sq = (document.getElementById('ad-search')||{}).value||'';
+  if (sq) t = t.filter(function(x){return x.name.indexOf(sq)>=0||(x.partner||'').indexOf(sq)>=0});
+  if (!t.length) { h += '<div class="es"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg><h3>暂无任务</h3></div>'; a.innerHTML = h; return; }
+  t.sort(function(a,b){return b.date.localeCompare(a.date)||{high:0,medium:1,low:2}[a.priority]-{high:0,medium:1,low:2}[b.priority]});
+  t.forEach(function(x){h += taskCard(x)});
+  a.innerHTML = h;
+}
+
+function searchTasks() { renderTaskList(); }
+function setQF(qf, btn) { S._qf = qf; render(); }
+
+function taskCard(t) {
+  var SL = {pending:'待处理',done:'已完成'};
+  var PL = {high:'高',medium:'中',low:'低'};
+  var cc = t.status==='done'?'com':'';
+  var pc = 'p'+t.priority[0];
+  var kc = t.status==='done'?'ch':'';
+  var fb = t.needFeedback?'<span class="tag tg-f">需反馈</span>':'';
+  var dl = '';
+  if (t.needFeedback&&t.feedbackDeadline) {
+    if (t.feedbackDeadline.indexOf('T')>=0) {
+      var dd = new Date(t.feedbackDeadline);
+      dl = '<span class="tag tg-f" style="background:var(--danger-light);color:var(--danger)">截止 '+(dd.getMonth()+1)+'/'+dd.getDate()+' '+String(dd.getHours()).padStart(2,'0')+':'+String(dd.getMinutes()).padStart(2,'0')+'</span>';
+    } else { dl = '<span class="tag tg-f">截止 '+t.feedbackDeadline+'</span>'; }
+  }
+  return '<div class="tc '+cc+' '+pc+'"><div class="tck '+kc+'" onclick="tog(\''+t.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt"><span class="tag tg-c">'+t.company+'</span>'+t.name+fb+dl+'</div>'+(t.desc?'<div class="td">'+t.desc+'</div>':'')+(t.link?'<a class="tl" href="'+t.link+'" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+(t.tableName||'打开表格')+'</a>':'')+'<div class="tm"><span class="tag tg-'+t.priority[0]+'">'+PL[t.priority]+'</span><span class="tag tg-'+(t.status==='done'?'d':'l')+'">'+SL[t.status]+'</span>'+(t.partner?'<span class="tag tg-f">'+t.partner+'</span>':'')+'</div></div><div class="ta"><button class="ta-btn" onclick="editTask(\''+t.id+'\')" title="编辑"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ta-btn" onclick="delTask(\''+t.id+'\')" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>';
+}
+
+function tog(id) { var t=S.tasks.find(function(x){return x.id===id}); if(!t)return; t.status=t.status==='done'?'pending':'done'; sv(); render(); }
+
+/* --- Task CRUD (unchanged) --- */
+function showAdd() { S.editId=null; document.getElementById('tm-title').textContent='新增任务'; resetForm(); document.getElementById('task-modal').classList.add('sh'); }
+function resetForm() {
+  document.getElementById('f-name').value='';
+  var sel=document.getElementById('f-company');
+  sel.innerHTML=S.companies.map(function(c){return '<option value="'+c+'">'+c+'</option>'}).join('');
+  document.getElementById('f-priority').value='medium';
+  document.getElementById('f-partner').value='';
+  document.getElementById('f-table-name').value='';
+  document.getElementById('f-link').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-date').value=td();
+  document.getElementById('f-target').value='';
+  document.getElementById('f-fb').value='0';
+  document.getElementById('f-fb-time').value='';
+  document.getElementById('f-fb-req').value='';
+  document.getElementById('fb-time-g').style.display='none';
+  document.getElementById('fb-req-g').style.display='none';
+}
+function editTask(id) {
+  var t=S.tasks.find(function(x){return x.id===id}); if(!t)return;
+  S.editId=id; document.getElementById('tm-title').textContent='编辑任务';
+  document.getElementById('f-name').value=t.name;
+  var sel=document.getElementById('f-company');
+  sel.innerHTML=S.companies.map(function(c){return '<option value="'+c+'"'+(c===t.company?' selected':'')+'>'+c+'</option>'}).join('');
+  document.getElementById('f-priority').value=t.priority;
+  document.getElementById('f-partner').value=t.partner||'';
+  document.getElementById('f-table-name').value=t.tableName||'';
+  document.getElementById('f-link').value=t.link||'';
+  document.getElementById('f-desc').value=t.desc||'';
+  document.getElementById('f-date').value=t.date;
+  document.getElementById('f-target').value=t.target||'';
+  document.getElementById('f-fb').value=t.needFeedback?'1':'0';
+  document.getElementById('f-fb-time').value=t.feedbackDeadline||'';
+  document.getElementById('f-fb-req').value=t.feedbackReq||'';
+  tbFB();
+  document.getElementById('task-modal').classList.add('sh');
+}
+function hideModal() { document.getElementById('task-modal').classList.remove('sh'); }
+function tbFB(){var v=document.getElementById('f-fb').value;document.getElementById('fb-time-g').style.display=v==='1'?'block':'none';document.getElementById('fb-req-g').style.display=v==='1'?'block':'none';}
+function saveTask() {
+  var name=document.getElementById('f-name').value.trim();
+  if(!name){alert('请输入任务名称');return;}
+  var d={
+    name:name,company:document.getElementById('f-company').value,
+    priority:document.getElementById('f-priority').value,
+    partner:document.getElementById('f-partner').value.trim(),
+    tableName:document.getElementById('f-table-name').value.trim(),
+    link:document.getElementById('f-link').value.trim(),
+    desc:document.getElementById('f-desc').value.trim(),
+    date:document.getElementById('f-date').value||td(),
+    target:document.getElementById('f-target').value.trim(),
+    needFeedback:document.getElementById('f-fb').value==='1',
+    feedbackDeadline:document.getElementById('f-fb-time').value||'',
+    feedbackReq:document.getElementById('f-fb-req').value.trim()
+  };
+  if(S.editId){var t=S.tasks.find(function(x){return x.id===S.editId});if(t)Object.assign(t,d)}
+  else{S.tasks.push({id:uid(),userNote:'',status:'pending',createdAt:Date.now()});Object.assign(S.tasks[S.tasks.length-1],d)}
+  sv();hideModal();render();
+}
+function delTask(id){if(!confirm('确认删除？'))return;S.tasks=S.tasks.filter(function(x){return x.id!==id});sv();render();}
+
+/* --- Company Management --- */
+function renderCompanyMgmt() {
+  var a=document.getElementById('admin-content');
+  var h='<div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between"><h2 style="font-size:16px;font-weight:600">公司管理</h2></div>';
+  h+='<div class="cm-add-form" style="margin-bottom:16px"><input type="text" id="new-cname" placeholder="输入新公司名称" style="max-width:280px"><button class="btn btn-primary" onclick="addCompany()">+ 添加公司</button></div>';
+  h+='<div class="cm-grid">';
+  S.companies.forEach(function(c){
+    var members=S.users[c]||[];
+    h+='<div class="cm-card"><div class="cm-head"><div class="cm-icon">'+c.charAt(0)+'</div><div class="cm-info"><div class="cm-name">'+c+'</div><div class="cm-count">'+members.length+' 位成员</div></div><button class="cm-del" onclick="delCompany(\''+c.replace(/'/g,"\\'")+'\')">删除</button></div>';
+    h+='<div class="cm-body"><div class="cm-members">';
+    if(members.length){members.forEach(function(m){h+='<span class="cm-chip">'+m+'<span class="chip-x" onclick="removeMember(\''+c.replace(/'/g,"\\'")+'\',\''+m.replace(/'/g,"\\'")+'\')">x</span></span>'})}
+    else{h+='<span class="cm-empty">暂无成员</span>'}
+    h+='</div><div class="cm-add-row"><input id="nm-'+c.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,'_')+'" placeholder="输入成员名字"><button onclick="addMember(\''+c.replace(/'/g,"\\'")+'\')">添加</button></div></div></div>';
+  });
+  h+='</div>'; a.innerHTML=h;
+}
+function addCompany(){var n=document.getElementById('new-cname').value.trim();if(!n)return;if(S.companies.indexOf(n)>=0){alert('该公司已存在');return}S.companies.push(n);sv();render()}
+function delCompany(n){if(!confirm('确认删除公司"'+n+'"？'))return;S.companies=S.companies.filter(function(x){return x!==n});sv();render()}
+function addMember(comp){var id='nm-'+comp.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,'_');var inp=document.getElementById(id);var n=inp.value.trim();if(!n)return;if(!S.users[comp])S.users[comp]=[];if(S.users[comp].indexOf(n)>=0){alert('该成员已存在');return}S.users[comp].push(n);sv();render()}
+function removeMember(comp,user){if(!confirm('确认移除"'+user+'"？'))return;if(!S.users[comp])return;S.users[comp]=S.users[comp].filter(function(x){return x!==user});sv();render()}
+
+/* --- Cooper Management --- */
+function renderCoopers() {
+  var a=document.getElementById('admin-content');
+  var h='<div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between"><h2 style="font-size:16px;font-weight:600">常用Cooper链接</h2><button class="btn btn-primary" onclick="showCooperModal()">+ 添加</button></div>';
+  if(!S.coopers.length){h+='<div class="es"><h3>暂无链接</h3></div>'}
+  else{S.coopers.forEach(function(c){h+='<div class="cp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><a class="cn" href="'+c.link+'" target="_blank" style="text-decoration:none;color:var(--gray-600)">'+c.name+'</a><span class="tag tg-c" style="margin-left:4px">'+(c.company==='__all__'?'全部公司':c.company)+'</span><button class="cd" onclick="delCooper(\''+c.id+'\')">x</button></div>'})}
+  a.innerHTML=h;
+}
+function showCooperModal(){document.getElementById('c-name').value='';document.getElementById('c-link').value='';var sel=document.getElementById('c-company');sel.innerHTML='<option value="__all__">全部公司</option>'+S.companies.map(function(c){return'<option value="'+c+'">'+c+'</option>'}).join('');document.getElementById('cooper-modal').classList.add('sh')}
+function hideCooperModal(){document.getElementById('cooper-modal').classList.remove('sh')}
+function saveCooper(){var n=document.getElementById('c-name').value.trim();var l=document.getElementById('c-link').value.trim();if(!n||!l){alert('请填写名称和链接');return}S.coopers.push({id:uid(),name:n,link:l,company:document.getElementById('c-company').value,byAdmin:true});sv();hideCooperModal();render()}
+function delCooper(id){S.coopers=S.coopers.filter(function(x){return x.id!==id});sv();render()}
+
+/* --- Approvals --- */
+function renderApprovals(){var a=document.getElementById('admin-content');var pending=S.approvals.filter(function(a){return a.status==='pending'});var h='<div style="margin-bottom:16px"><h2 style="font-size:16px;font-weight:600">审批管理</h2></div>';if(!pending.length){h+='<div class="es"><h3>暂无待审批</h3></div>'}else{pending.forEach(function(a){h+='<div class="ai"><div class="at"><span class="an">'+a.from+' '+a.target+'</span><span class="ad">'+new Date(a.createdAt).toLocaleDateString()+'</span></div><div class="ar">'+a.reason+'</div><div class="aa"><button class="btn btn-sm btn-primary" onclick="appr(\''+a.id+'\')">同意</button><button class="btn btn-sm btn-danger" onclick="rej(\''+a.id+'\')">拒绝</button></div></div>'})}a.innerHTML=h}
+function appr(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='approved';sv();render()}
+function rej(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='rejected';sv();render()}
+
+/* --- Stats --- */
+function updateStats() {
+  document.getElementById('s-total').textContent=S.tasks.length;
+  document.getElementById('s-companies').textContent=S.companies.length;
+  document.getElementById('s-done').textContent=S.tasks.filter(function(t){return t.status==='done'}).length;
+  document.getElementById('s-pending').textContent=S.tasks.filter(function(t){return t.status==='pending'}).length;
+  document.getElementById('s-feedback').textContent=S.tasks.filter(function(t){return t.needFeedback&&t.date===td()&&t.status!=='done'}).length;
+  var pendingApp=S.approvals.filter(function(a){return a.status==='pending'}).length;
+  document.getElementById('s-approvals').textContent=pendingApp;
+  var badge=document.getElementById('badge-approvals');
+  badge.textContent=pendingApp;badge.style.display=pendingApp?'inline':'none';
+  // Update header company select
+  var sel=document.getElementById('ad-comp-sel');
+  if(sel&&sel.options.length<=1){sel.innerHTML='<option value="__all__">全部</option>'+S.companies.map(function(c){return'<option value="'+c+'"'+(S.filter===c?' selected':'')+'>'+c+'</option>'}).join('')}
+}
+
+function init() { ld(); showView('tasks'); }
+init();
+</script>
+<script src="js/github-sync.js"></script>
+<script>
+document.getElementById('admin-sync-section').innerHTML=GH.renderSyncPanel();
+</script>
+</body>
+</html>

@@ -7,9 +7,8 @@ var GH = {
   _tokenCache: null
 };
 
-GH._rawUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE + '?ref=' + GH.BRANCH;
+GH._rawUrl = 'https://raw.githubusercontent.com/' + GH.OWNER + '/' + GH.REPO + '/' + GH.BRANCH + '/' + GH.FILE;
 GH._apiUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE;
-GH._pagesUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
 
 /* --- Token (localStorage优先，fallback到任务数据中的_token字段) --- */
 GH.getToken = function() {
@@ -29,19 +28,11 @@ GH.setToken = function(t) {
 
 /* --- 拉取 --- */
 GH.pull = function() {
-  // Use GitHub API raw for real-time data (no CDN caching delay)
-  return fetch(GH._rawUrl, {
-    headers: { 'Accept': 'application/vnd.github.v3.raw' }
-  }).then(function(r) {
-    if (!r.ok) throw new Error('pull failed HTTP ' + r.status);
-    return r.json();
-  }).catch(function() {
-    // Fallback to Pages if API unreachable
-    return fetch(GH._pagesUrl + '?_=' + Date.now()).then(function(r2) {
-      if (!r2.ok) throw new Error('pages fallback failed HTTP ' + r2.status);
-      return r2.json();
+  return fetch(GH._rawUrl + '?_=' + Date.now())
+    .then(function(r) {
+      if (!r.ok) throw new Error('pull failed HTTP ' + r.status);
+      return r.json();
     });
-  });
 };
 
 /* --- 推送（含 SHA 冲突自动重试，最多3次） --- */
@@ -111,30 +102,16 @@ GH.syncToLocal = function() {
   });
 };
 
-/* --- 伙伴端自动初始化 --- */
+/* --- 伙伴端自动初始化（拉取+推送默认Token） --- */
 GH.initPartner = function() {
+  // Ensure token is cached
   GH.getToken();
-  var local = JSON.parse(localStorage.getItem('th3_global') || '{}');
   return GH.pull().then(function(data) {
-    if (!local._dirty) {
-      // Clean local - use remote data
-      localStorage.setItem('th3_global', JSON.stringify(data));
-      return data;
-    }
-    // Has local dirty changes - try to push them first
-    return GH.push(local).then(function() {
-      // Push succeeded, keep local data (already pushed), clear dirty
-      delete local._dirty;
-      localStorage.setItem('th3_global', JSON.stringify(local));
-      return local;
-    }).catch(function() {
-      // Push failed, keep local data unchanged
-      console.warn('Cannot push local changes, keeping local data');
-      return local;
-    });
+    localStorage.setItem('th3_global', JSON.stringify(data));
+    return data;
   }).catch(function(err) {
-    console.warn('GitHub sync failed, using local:', err.message);
-    return local;
+    console.warn('GitHub sync failed, fallback to local:', err.message);
+    return null;
   });
 };
 
@@ -145,10 +122,6 @@ GH.autoPush = function() {
   function doPush() {
     GH.syncToGitHub().then(function() {
       console.log('auto-push ok');
-      // Clear dirty flag on success
-      var gd = JSON.parse(localStorage.getItem('th3_global') || '{}');
-      delete gd._dirty;
-      localStorage.setItem('th3_global', JSON.stringify(gd));
     }).catch(function(err) {
       console.warn('auto-push failed:', err.message);
       if (retryCount < 2) {
@@ -213,11 +186,6 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
-
-
-
-
-
 
 
 

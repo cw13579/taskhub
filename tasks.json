@@ -37,7 +37,15 @@
       "feedbackReq": ""
     }
   ],
-  "adminCoopers": [],
+  "adminCoopers": [
+    {
+      "id": "mqchpj2gf5hr",
+      "name": "测试",
+      "link": "https://cw13579.github.io/taskhub/admin.html",
+      "company": "__all__",
+      "byAdmin": true
+    }
+  ],
   "approvals": [],
   "companies": [
     "杭州创业兄弟",

@@ -390,42 +390,12 @@ function selDate(ds) { S.selDate = ds === S.selDate ? null : ds; S._qf = 'all'; 
 
 /* --- Render --- */
 function render() {
-  // Pull from GitHub to get partner updates first
-  GH.syncToLocal().then(function() {
-    ld(); renderCompanySidebar(); renderCal();
-    if (S.showView==='tasks') renderTaskList();
+  ld(); renderCompanySidebar(); renderCal();
+  if (S.showView==='tasks') renderTaskList();
   else if (S.showView==='companies') renderCompanyMgmt();
   else if (S.showView==='coopers') renderCoopers();
   else if (S.showView==='approvals') renderApprovals();
   updateStats();
-  }).catch(function() {
-    ld(); renderCompanySidebar(); renderCal();
-    if (S.showView==='tasks') renderTaskList();
-    else if (S.showView==='companies') renderCompanyMgmt();
-    else if (S.showView==='coopers') renderCoopers();
-    else if (S.showView==='approvals') renderApprovals();
-    updateStats();
-  });
- }
-
-/* --- Task List --- */
-function renderTaskList() {
-  var t = S.tasks.slice();
-  if (S.filter!=='__all__') t = t.filter(function(x){return x.company===S.filter});
-  if (S._qf==='today') t = t.filter(function(x){return x.date===today()});
-  else if (S._qf==='pending') t = t.filter(function(x){return x.status==='pending'});
-  else if (S._qf==='done') t = t.filter(function(x){return x.status==='done'});
-  if (S.selDate) t = t.filter(function(x){return x.date===S.selDate});
-
-  var a = document.getElementById('admin-content');
-  var h = '<div class="filter-tabs"><button class="filter-tab'+(S._qf==='all'?' active':'')+'" onclick="setQF(\'all\',this)">全部</button><button class="filter-tab'+(S._qf==='today'?' active':'')+'" onclick="setQF(\'today\',this)">今天</button><button class="filter-tab'+(S._qf==='pending'?' active':'')+'" onclick="setQF(\'pending\',this)">待处理</button><button class="filter-tab'+(S._qf==='done'?' active':'')+'" onclick="setQF(\'done\',this)">已完成</button></div>';
-
-  var sq = (document.getElementById('ad-search')||{}).value||'';
-  if (sq) t = t.filter(function(x){return x.name.indexOf(sq)>=0||(x.partner||'').indexOf(sq)>=0});
-  if (!t.length) { h += '<div class="es"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg><h3>暂无任务</h3></div>'; a.innerHTML = h; return; }
-  t.sort(function(a,b){return b.date.localeCompare(a.date)||{high:0,medium:1,low:2}[a.priority]-{high:0,medium:1,low:2}[b.priority]});
-  t.forEach(function(x){h += taskCard(x)});
-  a.innerHTML = h;
 }
 
 function searchTasks() { renderTaskList(); }

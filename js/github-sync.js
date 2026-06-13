@@ -8,6 +8,7 @@ var GH = {
 };
 
 GH._rawUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE + '?ref=' + GH.BRANCH;
+GH._apiUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE;
 GH._pagesUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
 
 /* --- Token (localStorage优先，fallback到任务数据中的_token字段) --- */
@@ -212,6 +213,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

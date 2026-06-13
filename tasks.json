@@ -17,24 +17,6 @@
       "needFeedback": false,
       "feedbackDeadline": "",
       "feedbackReq": ""
-    },
-    {
-      "id": "mqcm74w809lc",
-      "userNote": "",
-      "status": "pending",
-      "createdAt": 1781370829448,
-      "name": "1111111",
-      "company": "杭州租哥辆",
-      "priority": "medium",
-      "partner": "",
-      "tableName": "",
-      "link": "1111",
-      "desc": "",
-      "date": "2026-06-14",
-      "target": "",
-      "needFeedback": false,
-      "feedbackDeadline": "",
-      "feedbackReq": ""
     }
   ],
   "adminCoopers": [],
@@ -43,7 +25,8 @@
     "杭州创业兄弟",
     "杭州幸福千万家",
     "杭州租哥辆",
-    "杭州讯途同创"
+    "杭州讯途同创",
+    "杭州亿威"
   ],
   "users": {}
 }

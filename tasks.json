@@ -1,31 +1,20 @@
 {
-  "tasks": [
-    {
-      "id": "mqclvim1lrye",
-      "userNote": "",
-      "status": "pending",
-      "createdAt": 1781370287353,
-      "name": "1",
-      "company": "杭州创业兄弟",
-      "priority": "medium",
-      "partner": "",
-      "tableName": "",
-      "link": "1",
-      "desc": "",
-      "date": "2026-06-14",
-      "target": "",
-      "needFeedback": false,
-      "feedbackDeadline": "",
-      "feedbackReq": ""
-    }
-  ],
-  "adminCoopers": [],
-  "approvals": [],
-  "companies": [
-    "杭州创业兄弟",
-    "杭州幸福千万家",
-    "杭州租哥辆",
-    "杭州讯途同创"
-  ],
-  "users": {}
+    "approvals":  [
+
+                  ],
+    "companies":  [
+                      "杭州创业兄弟",
+                      "杭州幸福千万家",
+                      "杭州租哥辆",
+                      "杭州讯途同创"
+                  ],
+    "tasks":  [
+
+              ],
+    "users":  {
+
+              },
+    "adminCoopers":  [
+
+                     ]
 }

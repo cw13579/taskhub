@@ -107,23 +107,25 @@ GH.initPartner = function() {
   GH.getToken();
   var local = JSON.parse(localStorage.getItem('th3_global') || '{}');
   return GH.pull().then(function(data) {
-    // Only overwrite if no local dirty changes OR if remote has the same _dirty=false
     if (!local._dirty) {
       // Clean local - use remote data
       localStorage.setItem('th3_global', JSON.stringify(data));
       return data;
     }
-    // Has local dirty changes - try to push them first, then use remote
-    return GH.syncToGitHub().then(function() {
-      localStorage.setItem('th3_global', JSON.stringify(data));
-      return data;
+    // Has local dirty changes - try to push them first
+    return GH.push(local).then(function() {
+      // Push succeeded, keep local data (already pushed), clear dirty
+      delete local._dirty;
+      localStorage.setItem('th3_global', JSON.stringify(local));
+      return local;
     }).catch(function() {
+      // Push failed, keep local data unchanged
       console.warn('Cannot push local changes, keeping local data');
       return local;
     });
   }).catch(function(err) {
     console.warn('GitHub sync failed, using local:', err.message);
-    return local._dirty ? local : (Object.keys(local.tasks||{}).length ? local : null);
+    return local;
   });
 };
 
@@ -202,6 +204,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

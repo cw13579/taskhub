@@ -257,7 +257,7 @@
    var t = gd.tasks ? gd.tasks.find(function (x) { return x.id === id; }) : null;
    if (!t) return;
    t.status = t.status === 'done' ? 'pending' : 'done';
-   gs(gd); GH.autoPush(); renderTasks();
+   gs(gd); renderTasks();
  }
  
  /* --- Tag/Note --- */
@@ -282,7 +282,7 @@
    var ud = u(); if (!ud.taskNotes) ud.taskNotes = {};
    ud.taskNotes[t.id] = document.getElementById('tag-note').value.trim();
    us(ud);
-   hideTagModal(); GH.autoPush(); renderTasks();
+   hideTagModal(); renderTasks();
  }
  
  /* --- Cooper --- */
@@ -363,6 +363,7 @@
  function start() { renderTasks(); renderCal(); schedR(); }
  function init() { showLogin(); }
  init();
+
 
 
 

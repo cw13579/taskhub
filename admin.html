@@ -418,7 +418,7 @@ function taskCard(t) {
   return '<div class="tc '+cc+' '+pc+'"><div class="tck '+kc+'" onclick="tog(\''+t.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tb"><div class="tt"><span class="tag tg-c">'+t.company+'</span>'+t.name+fb+dl+'</div>'+(t.desc?'<div class="td">'+t.desc+'</div>':'')+(t.link?'<a class="tl" href="'+t.link+'" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+(t.tableName||'打开表格')+'</a>':'')+'<div class="tm"><span class="tag tg-'+t.priority[0]+'">'+PL[t.priority]+'</span><span class="tag tg-'+(t.status==='done'?'d':'l')+'">'+SL[t.status]+'</span>'+(t.partner?'<span class="tag tg-f">'+t.partner+'</span>':'')+'</div></div><div class="ta"><button class="ta-btn" onclick="copyTask(\''+t.id+'\')" title="复制"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button><button class="ta-btn" onclick="editTask(\''+t.id+'\')" title="编辑"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ta-btn" onclick="delTask(\''+t.id+'\')" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>';
 }
 
-function tog(id) { var t=S.tasks.find(function(x){return x.id===id}); if(!t)return; t.status=t.status==='done'?'pending':'done'; sv(); GH.autoPush(); render(); }
+function tog(id) { var t=S.tasks.find(function(x){return x.id===id}); if(!t)return; t.status=t.status==='done'?'pending':'done'; sv(); render(); }
 
 /* --- Task CRUD (unchanged) --- */
 function showAdd() { S.editId=null; document.getElementById('tm-title').textContent='新增任务'; resetForm(); document.getElementById('task-modal').classList.add('sh'); }
@@ -478,9 +478,9 @@ function saveTask() {
   };
   if(S.editId){var t=S.tasks.find(function(x){return x.id===S.editId});if(t)Object.assign(t,d)}
   else{S.tasks.push({id:uid(),userNote:'',status:'pending',createdAt:Date.now()});Object.assign(S.tasks[S.tasks.length-1],d)}
-  sv();hideModal(); GH.autoPush();render();
+  sv();hideModal(); render();
 }
-function delTask(id){if(!confirm('确认删除？'))return;S.tasks=S.tasks.filter(function(x){return x.id!==id});sv();GH.autoPush(); render();}
+function delTask(id){if(!confirm('确认删除？'))return;S.tasks=S.tasks.filter(function(x){return x.id!==id});sv();render();}
 function copyTask(id){var t=S.tasks.find(function(x){return x.id===id});if(!t)return;S.editId=null;document.getElementById('tm-title').textContent='复制任务';document.getElementById('f-name').value=t.name+' (副本)';var sel=document.getElementById('f-company');sel.innerHTML=S.companies.map(function(c){return '<option value="'+c+'"'+(c===t.company?' selected':'')+'>'+c+'</option>'}).join('');document.getElementById('f-priority').value=t.priority;document.getElementById('f-partner').value=t.partner||'';document.getElementById('f-table-name').value=t.tableName||'';document.getElementById('f-link').value=t.link||'';document.getElementById('f-desc').value=t.desc||'';document.getElementById('f-date').value=td();document.getElementById('f-target').value=t.target||'';document.getElementById('f-fb').value=t.needFeedback?'1':'0';document.getElementById('f-fb-time').value=t.feedbackDeadline||'';document.getElementById('f-fb-req').value=t.feedbackReq||'';tbFB();document.getElementById('task-modal').classList.add('sh');}
 
 /* --- Company Management --- */
@@ -499,10 +499,10 @@ function renderCompanyMgmt() {
   });
   h+='</div>'; a.innerHTML=h;
 }
-function addCompany(){var n=document.getElementById('new-cname').value.trim();if(!n)return;if(S.companies.indexOf(n)>=0){alert('该公司已存在');return}S.companies.push(n);sv();GH.autoPush(); render()}
-function delCompany(n){if(!confirm('确认删除公司"'+n+'"？'))return;S.companies=S.companies.filter(function(x){return x!==n});sv();GH.autoPush(); render()}
-function addMember(comp){var id='nm-'+comp.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,'_');var inp=document.getElementById(id);var n=inp.value.trim();if(!n)return;if(!S.users[comp])S.users[comp]=[];if(S.users[comp].indexOf(n)>=0){alert('该成员已存在');return}S.users[comp].push(n);sv();GH.autoPush(); render()}
-function removeMember(comp,user){if(!confirm('确认移除"'+user+'"？'))return;if(!S.users[comp])return;S.users[comp]=S.users[comp].filter(function(x){return x!==user});sv();GH.autoPush(); render()}
+function addCompany(){var n=document.getElementById('new-cname').value.trim();if(!n)return;if(S.companies.indexOf(n)>=0){alert('该公司已存在');return}S.companies.push(n);sv();render()}
+function delCompany(n){if(!confirm('确认删除公司"'+n+'"？'))return;S.companies=S.companies.filter(function(x){return x!==n});sv();render()}
+function addMember(comp){var id='nm-'+comp.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,'_');var inp=document.getElementById(id);var n=inp.value.trim();if(!n)return;if(!S.users[comp])S.users[comp]=[];if(S.users[comp].indexOf(n)>=0){alert('该成员已存在');return}S.users[comp].push(n);sv();render()}
+function removeMember(comp,user){if(!confirm('确认移除"'+user+'"？'))return;if(!S.users[comp])return;S.users[comp]=S.users[comp].filter(function(x){return x!==user});sv();render()}
 
 /* --- Cooper Management --- */
 function renderCoopers() {
@@ -514,13 +514,13 @@ function renderCoopers() {
 }
 function showCooperModal(){document.getElementById('c-name').value='';document.getElementById('c-link').value='';var sel=document.getElementById('c-company');sel.innerHTML='<option value="__all__">全部公司</option>'+S.companies.map(function(c){return'<option value="'+c+'">'+c+'</option>'}).join('');document.getElementById('cooper-modal').classList.add('sh')}
 function hideCooperModal(){document.getElementById('cooper-modal').classList.remove('sh')}
-function saveCooper(){var n=document.getElementById('c-name').value.trim();var l=document.getElementById('c-link').value.trim();if(!n||!l){alert('请填写名称和链接');return}S.coopers.push({id:uid(),name:n,link:l,company:document.getElementById('c-company').value,byAdmin:true});sv();hideCooperModal(); GH.autoPush();render()}
-function delCooper(id){S.coopers=S.coopers.filter(function(x){return x.id!==id});sv();GH.autoPush(); render()}
+function saveCooper(){var n=document.getElementById('c-name').value.trim();var l=document.getElementById('c-link').value.trim();if(!n||!l){alert('请填写名称和链接');return}S.coopers.push({id:uid(),name:n,link:l,company:document.getElementById('c-company').value,byAdmin:true});sv();hideCooperModal(); render()}
+function delCooper(id){S.coopers=S.coopers.filter(function(x){return x.id!==id});sv();render()}
 
 /* --- Approvals --- */
 function renderApprovals(){var a=document.getElementById('admin-content');var pending=S.approvals.filter(function(a){return a.status==='pending'});var h='<div style="margin-bottom:16px"><h2 style="font-size:16px;font-weight:600">审批管理</h2></div>';if(!pending.length){h+='<div class="es"><h3>暂无待审批</h3></div>'}else{pending.forEach(function(a){h+='<div class="ai"><div class="at"><span class="an">'+a.from+' '+a.target+'</span><span class="ad">'+new Date(a.createdAt).toLocaleDateString()+'</span></div><div class="ar">'+a.reason+'</div><div class="aa"><button class="btn btn-sm btn-primary" onclick="appr(\''+a.id+'\')">同意</button><button class="btn btn-sm btn-danger" onclick="rej(\''+a.id+'\')">拒绝</button></div></div>'})}a.innerHTML=h}
-function appr(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='approved';sv();GH.autoPush(); render()}
-function rej(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='rejected';sv();GH.autoPush(); render()}
+function appr(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='approved';sv();render()}
+function rej(id){var a=S.approvals.find(function(x){return x.id===id});if(!a)return;a.status='rejected';sv();render()}
 
 /* --- Stats --- */
 function updateStats() {
@@ -547,6 +547,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 

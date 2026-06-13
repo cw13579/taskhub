@@ -7,8 +7,8 @@ var GH = {
   _tokenCache: null
 };
 
-GH._rawUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
-GH._apiUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE;
+GH._rawUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE + '?ref=' + GH.BRANCH;
+GH._pagesUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
 
 /* --- Token (localStorage优先，fallback到任务数据中的_token字段) --- */
 GH.getToken = function() {
@@ -28,11 +28,19 @@ GH.setToken = function(t) {
 
 /* --- 拉取 --- */
 GH.pull = function() {
-  return fetch(GH._rawUrl + '?_=' + Date.now())
-    .then(function(r) {
-      if (!r.ok) throw new Error('pull failed HTTP ' + r.status);
-      return r.json();
+  // Use GitHub API raw for real-time data (no CDN caching delay)
+  return fetch(GH._rawUrl, {
+    headers: { 'Accept': 'application/vnd.github.v3.raw' }
+  }).then(function(r) {
+    if (!r.ok) throw new Error('pull failed HTTP ' + r.status);
+    return r.json();
+  }).catch(function() {
+    // Fallback to Pages if API unreachable
+    return fetch(GH._pagesUrl + '?_=' + Date.now()).then(function(r2) {
+      if (!r2.ok) throw new Error('pages fallback failed HTTP ' + r2.status);
+      return r2.json();
     });
+  });
 };
 
 /* --- 推送（含 SHA 冲突自动重试，最多3次） --- */
@@ -204,6 +212,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

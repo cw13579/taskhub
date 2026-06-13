@@ -3,7 +3,7 @@
     {
       "id": "mqcpnkdjr5ml",
       "userNote": "",
-      "status": "done",
+      "status": "pending",
       "createdAt": 1781376634855,
       "name": "测试",
       "company": "杭州创业兄弟",
@@ -19,7 +19,15 @@
       "feedbackReq": ""
     }
   ],
-  "adminCoopers": [],
+  "adminCoopers": [
+    {
+      "id": "mqcpv7xagdnz",
+      "name": "测试",
+      "link": "1",
+      "company": "__all__",
+      "byAdmin": true
+    }
+  ],
   "approvals": [],
   "companies": [
     "杭州创业兄弟",

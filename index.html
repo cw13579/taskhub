@@ -105,15 +105,14 @@
  </div>
  
  <div id="reminder-container"></div>
- 
+ <script src="js/github-sync.js"></script>
 <script src="js/app.js"></script>
 <script>
-init();
+GH.initPartner().then(function(){init();}).catch(function(){init();});
 </script>
 <script>if(window.location.search.indexOf("desktop=1")>=0){localStorage.setItem("th3_fd","1")}if(window.location.search.indexOf("mobile=1")>=0){localStorage.removeItem("th3_fd");window.location.href="mobile.html"}</script>
  </body>
  </html>
-
 
 
 

@@ -556,10 +556,12 @@
  </script>
  <script src="js/github-sync.js"></script>
 <script>
-init();
+GH.initPartner().then(function(){init();}).catch(function(){init();});
 </script>
 </body>
  </html>
+
+
 
 
 

@@ -6,7 +6,7 @@
    try { var d = localStorage.getItem('th3_global'); return d ? JSON.parse(d) : { tasks: [], companies: ['杭州创业兄弟', '杭州幸福千万家', '杭州租哥辆', '杭州讯途同创'], approvals: [], adminCoopers: [], users: {} }; }
    catch (e) { return { tasks: [], companies: ['杭州创业兄弟', '杭州幸福千万家', '杭州租哥辆', '杭州讯途同创'], approvals: [], adminCoopers: [], users: {} }; }
  }
- function gs(d) { localStorage.setItem('th3_global', JSON.stringify(d)); }
+ function gs(d) { d._dirty = true; localStorage.setItem('th3_global', JSON.stringify(d)); }
  function u() {
    if (!S.user) return { coopers: [], taskNotes: {} };
    try { var d = localStorage.getItem('th3_users'); var users = d ? JSON.parse(d) : {}; return users[S.user] || { coopers: [], taskNotes: {} }; }
@@ -363,6 +363,7 @@
  function start() { renderTasks(); renderCal(); schedR(); }
  function init() { showLogin(); }
  init();
+
 
 
 

@@ -53,6 +53,24 @@
       "needFeedback": false,
       "feedbackDeadline": "",
       "feedbackReq": ""
+    },
+    {
+      "id": "mqemh4964vfn",
+      "userNote": "",
+      "status": "pending",
+      "createdAt": 1781492227530,
+      "name": "自管数据",
+      "company": "杭州租哥辆",
+      "priority": "low",
+      "partner": "",
+      "tableName": "",
+      "link": "https://cooper.didichuxing.com/docs2/sheet/2208120690883?sheetId=dzoUt",
+      "desc": "",
+      "date": "2026-06-15",
+      "target": "",
+      "needFeedback": false,
+      "feedbackDeadline": "",
+      "feedbackReq": ""
     }
   ],
   "adminCoopers": [

@@ -7,8 +7,9 @@ var GH = {
   _tokenCache: null
 };
 
-GH._rawUrl = 'https://raw.githubusercontent.com/' + GH.OWNER + '/' + GH.REPO + '/' + GH.BRANCH + '/' + GH.FILE;
+GH._rawUrl = 'https://' + GH.OWNER + '.github.io/' + GH.REPO + '/' + GH.FILE;
 GH._apiUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/contents/' + GH.FILE;
+GH._pagesUrl = GH._rawUrl;
 
 /* --- Token (localStorage优先，fallback到任务数据中的_token字段) --- */
 GH.getToken = function() {
@@ -85,7 +86,15 @@ GH.push = function(data, retries) {
 /* --- localStorage -> GitHub --- */
 GH.syncToGitHub = function() {
   var local = JSON.parse(localStorage.getItem('th3_global') || '{}');
-  return GH.push(local);
+  return GH.push(local).then(function(r) {
+    // Trigger Pages rebuild to refresh CDN
+    var buildUrl = 'https://api.github.com/repos/' + GH.OWNER + '/' + GH.REPO + '/pages/builds';
+    return fetch(buildUrl, {
+      method: 'POST',
+      headers: { 'Authorization': 'token ' + GH.getToken(), 'Accept': 'application/vnd.github.v3+json' },
+      body: '{}'
+    }).then(function() { return r; }).catch(function() { return r; });
+  });
 };
 
 /* --- GitHub -> localStorage --- */

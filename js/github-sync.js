@@ -104,14 +104,18 @@ GH.syncToLocal = function() {
 
 /* --- 伙伴端自动初始化（拉取+推送默认Token） --- */
 GH.initPartner = function() {
-  // Ensure token is cached
   GH.getToken();
+  var local = JSON.parse(localStorage.getItem('th3_global') || '{}');
   return GH.pull().then(function(data) {
-    localStorage.setItem('th3_global', JSON.stringify(data));
-    return data;
+    if (!local._dirty) {
+      localStorage.setItem('th3_global', JSON.stringify(data));
+      return data;
+    }
+    console.warn('Local changes detected, keeping local data');
+    return local;
   }).catch(function(err) {
-    console.warn('GitHub sync failed, fallback to local:', err.message);
-    return null;
+    console.warn('GitHub sync failed, using local:', err.message);
+    return local._dirty ? local : (data || local);
   });
 };
 
@@ -186,6 +190,7 @@ function saveTokenAndPush() {
     GH.showStatus('Push failed: ' + err.message, false);
   });
 }
+
 
 
 

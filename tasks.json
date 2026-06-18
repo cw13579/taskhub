@@ -161,6 +161,24 @@
       "needFeedback": false,
       "feedbackDeadline": "",
       "feedbackReq": ""
+    },
+    {
+      "id": "mqjcyyf4s4rq",
+      "userNote": "",
+      "status": "pending",
+      "createdAt": 1781778594496,
+      "name": "55",
+      "company": "杭州创业兄弟",
+      "priority": "medium",
+      "partner": "",
+      "tableName": "",
+      "link": "55",
+      "desc": "",
+      "date": "2026-06-18",
+      "target": "",
+      "needFeedback": false,
+      "feedbackDeadline": "",
+      "feedbackReq": ""
     }
   ],
   "adminCoopers": [
